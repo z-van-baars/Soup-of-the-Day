@@ -160,7 +160,6 @@ const GoalMode = (() => {
 
     card.addEventListener('click', () => {
       RecipeBuilder.loadIngredients(combo.ingredients);
-      document.getElementById('cook-btn')?.click();
     });
 
     return card;

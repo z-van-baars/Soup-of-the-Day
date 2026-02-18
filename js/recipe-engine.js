@@ -336,6 +336,12 @@ const RecipeEngine = (() => {
       candidates = [...critters, ...nonCritters];
     }
 
+    // Sort alphabetically so combineRepeat generates the canonical form first:
+    // alphabetically-earliest ingredient at maximum quantity, before any mixed combos.
+    // This makes the first occurrence of each (sellValue, effect, tier) group
+    // the clean canonical representative after deduplication below.
+    candidates = [...candidates].sort((a, b) => a.name.localeCompare(b.name));
+
     const maxSize = allowDuplicates ? 5 : Math.min(5, candidates.length);
 
     for (let size = maxSize; size >= 1; size--) {
@@ -354,7 +360,19 @@ const RecipeEngine = (() => {
     }
 
     results.sort((a, b) => b.result.sellValue - a.result.sellValue);
-    return results.slice(0, maxResults);
+
+    // Deduplicate value-equivalent outcomes: same sell value + same effect + same tier
+    // are economically identical from a merchant perspective. Keep only the canonical
+    // form (first occurrence = alphabetically-first ingredient at max qty).
+    const rankSeen = new Set();
+    const deduped = results.filter(r => {
+      const rKey = `${r.result.sellValue}|${r.result.effect?.effectId ?? 'none'}|${r.result.tier}`;
+      if (rankSeen.has(rKey)) return false;
+      rankSeen.add(rKey);
+      return true;
+    });
+
+    return deduped.slice(0, maxResults);
   }
 
   return {
