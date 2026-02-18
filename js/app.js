@@ -22,7 +22,7 @@
   let currentMode = 'ingredient';
   let sortField = 'name';   // 'name' | 'value' | 'fuse'
   let prevSortField = null; // for smart secondary sort
-  let sortAsc = true;
+  let sortAsc = false; // false = A→Z for name (initial); true = high→low for value/fuse
 
   // ── Init modules ───────────────────────────────────────────────────────────
   IngredientGrid.init(ingredients, {
@@ -57,8 +57,9 @@
   function _setSortField(field) {
     prevSortField = sortField !== field ? sortField : prevSortField;
     sortField = field;
-    sortAsc = true; // always reset to default (descending) when switching fields
-    if (sortDirBtn) sortDirBtn.textContent = '↑';
+    // Name defaults A→Z (false); value/fuse defaults high→low (true)
+    sortAsc = field !== 'name';
+    if (sortDirBtn) sortDirBtn.textContent = sortAsc ? '↑' : '↓';
     sortNameBtn.classList.toggle('active', field === 'name');
     sortValueBtn.classList.toggle('active', field === 'value');
     sortFuseBtn.classList.toggle('active', field === 'fuse');

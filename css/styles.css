@@ -1339,14 +1339,24 @@ img { display: block; }
     gap: 4px;
   }
 
-  /* ── Goal mode controls: stack dropdowns, hide labels ── */
+  /* ── Goal mode controls: filter btn + effect inline, tier full-width below ── */
   .goal-controls {
-    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 6px;
   }
 
-  .goal-field {
-    width: 100%;
+  .goal-controls .mobile-filter-btn {
+    flex-shrink: 0;
+  }
+
+  .goal-controls .goal-field {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .goal-controls .goal-field-tier {
+    flex: 0 0 100%;
   }
 
   .goal-field label {

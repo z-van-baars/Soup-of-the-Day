@@ -9,8 +9,9 @@ const Filters = (() => {
   // Track which categories and effects are enabled
   const activeCategories = new Set([
     'fruit', 'vegetable', 'mushroom', 'meat', 'fish', 'seafood', 'herb', 'nut', 'other',
-    'bug', 'lizard', 'frog', 'dragon-part',
-    // monster-part is now controlled via subcategories — don't add here
+    'bug', 'lizard', 'frog',
+    // dragon-part and monster-part are off by default — opt in via sidebar
+    // monster-part is controlled via subcategories — don't add here
   ]);
 
   // Monster part subcategories (all active by default)
@@ -151,6 +152,11 @@ const Filters = (() => {
 
     // Mobile filter button (outside sidebar, in search bar area)
     document.getElementById('mobile-filter-btn')?.addEventListener('click', () => {
+      _toggleMobileSidebar();
+    });
+
+    // Mobile filter button in goal mode controls
+    document.getElementById('goal-mobile-filter-btn')?.addEventListener('click', () => {
       _toggleMobileSidebar();
     });
 

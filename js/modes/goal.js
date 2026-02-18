@@ -226,6 +226,8 @@ const GoalMode = (() => {
 
     card.addEventListener('click', () => {
       RecipeBuilder.loadIngredients(combo.ingredients);
+      const result = RecipeEngine.computeRecipe(combo.ingredients, _effects);
+      Results.renderResult(result, combo.ingredients);
     });
 
     return card;

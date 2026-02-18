@@ -85,9 +85,9 @@
         </div>
         <div class="filter-section">
           <h3 class="filter-section-title">
-            <label class="filter-type-master"><input type="checkbox" data-type-master="dragon" checked> Dragon</label>
+            <label class="filter-type-master"><input type="checkbox" data-type-master="dragon"> Dragon</label>
           </h3>
-          <label class="filter-item"><input type="checkbox" name="filter" value="dragon-part" data-type="dragon" checked> Dragon Part</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="dragon-part" data-type="dragon"> Dragon Part</label>
         </div>
         <div class="filter-section">
           <h3 class="filter-section-title">Fuse Bonus</h3>
@@ -124,13 +124,14 @@
       <!-- Goal Mode Panel (hidden by default) -->
       <div class="mode-panel" id="goal-panel" hidden>
         <div class="goal-controls">
+          <button class="mobile-filter-btn" id="goal-mobile-filter-btn" aria-label="Open filters">&#9776; Filters</button>
           <div class="goal-field">
             <label for="goal-effect-select">Target Effect</label>
             <select id="goal-effect-select" class="styled-select">
               <option value="">— Choose an effect —</option>
             </select>
           </div>
-          <div class="goal-field">
+          <div class="goal-field goal-field-tier">
             <label for="goal-tier-select">Tier</label>
             <select id="goal-tier-select" class="styled-select">
               <option value="1">Tier 1</option>
@@ -181,7 +182,7 @@
           <button class="sort-btn active" id="sort-name" title="Sort by name">Name</button>
           <button class="sort-btn" id="sort-value" title="Sort by sell value">Value</button>
           <button class="sort-btn" id="sort-fuse" title="Sort by fuse bonus">Fuse</button>
-          <button class="sort-dir-btn" id="sort-dir" title="Toggle sort direction">↑</button>
+          <button class="sort-dir-btn" id="sort-dir" title="Toggle sort direction">↓</button>
           <label class="fuse-show-toggle" title="Show fuse bonus on cards">
             <input type="checkbox" id="show-fuse-toggle">
             <span>⚔ Fuse</span>
