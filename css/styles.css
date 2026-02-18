@@ -1207,6 +1207,24 @@ img { display: block; }
   to   { opacity: 0; }
 }
 
+/* ── Mobile filter button (hidden on desktop) ───────────────────── */
+.mobile-filter-btn {
+  display: none;
+}
+
+/* ── Sidebar overlay backdrop (hidden by default) ───────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 89;
+}
+
+.sidebar-overlay.visible {
+  display: block;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    MOBILE
    ═══════════════════════════════════════════════════════════════════ */
@@ -1214,23 +1232,39 @@ img { display: block; }
   :root {
     --sidebar-w: 0px;
     --recipe-w: 0px;
+    --header-h: 52px;
   }
 
   html, body { overflow: auto; }
 
+  /* ── Header ── */
+  .header-inner { padding: 0 12px; gap: 10px; }
+
+  .brand-icon { font-size: 18px; }
+  .brand-title { font-size: 16px; }
+  .brand-sub { display: none !important; }
+
+  .mode-tabs { gap: 2px; padding: 3px; }
+  .mode-tab { padding: 5px 10px; gap: 4px; }
+  .tab-label { font-size: 11px; }
+  .tab-icon  { font-size: 13px; }
+
+  /* ── Main grid collapses to single column ── */
   .app-main {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+    display: flex;
+    flex-direction: column;
     height: auto;
+    min-height: 100dvh;
     overflow: visible;
     padding-top: var(--header-h);
   }
 
+  /* ── Filter drawer ── */
   .filters-sidebar {
     position: fixed;
     top: var(--header-h);
     left: 0; bottom: 0;
-    width: 220px;
+    width: 260px;
     z-index: 90;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
@@ -1241,28 +1275,100 @@ img { display: block; }
     transform: translateX(0);
   }
 
+  /* The in-sidebar toggle button becomes a close (✕) button */
   .sidebar-toggle {
     display: block;
   }
 
+  /* ── Mobile filter button (visible outside the drawer) ── */
+  .mobile-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 6px 10px;
+    white-space: nowrap;
+    transition: background var(--transition), color var(--transition);
+    order: 1;
+  }
+
+  .mobile-filter-btn:hover,
+  .mobile-filter-btn.active {
+    background: var(--bg-card-hover);
+    border-color: var(--gold-dim);
+    color: var(--gold-bright);
+  }
+
+  /* ── Search bar area wraps to 2 rows on mobile ── */
+  .search-bar-wrap {
+    flex-wrap: wrap;
+    gap: 8px 8px;
+    padding: 8px 10px 6px;
+  }
+
+  .search-bar {
+    order: 2;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ingredient-count { display: none; }
+
+  .sort-controls {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  /* ── Ingredient section ── */
+  .ingredient-section {
+    overflow: visible;
+    flex: 1;
+  }
+
+  .ingredient-grid {
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  /* ── Recipe sidebar becomes a bottom section ── */
   .recipe-sidebar {
     border-left: none;
     border-top: 1px solid var(--border-dim);
     overflow: visible;
+    flex-shrink: 0;
   }
 
-  .ingredient-section {
+  /* Recipe slots: 2-column grid on mobile to reduce vertical height */
+  .recipe-slots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .recipe-slot {
+    min-height: 40px;
+    padding: 5px 8px;
+  }
+
+  .slot-name {
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Results panel expands naturally */
+  .results-panel {
     overflow: visible;
   }
-
-  .ingredient-grid {
-    max-height: 50vh;
-    overflow-y: auto;
-  }
-
-  .mode-tabs { gap: 2px; }
-  .mode-tab { padding: 5px 10px; }
-  .tab-label { font-size: 12px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

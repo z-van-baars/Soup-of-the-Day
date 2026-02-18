@@ -144,10 +144,35 @@ const Filters = (() => {
       _notifyChange();
     });
 
-    // Mobile sidebar toggle
+    // Mobile sidebar toggle (button inside sidebar header)
     document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
-      document.getElementById('filters-sidebar')?.classList.toggle('open');
+      _toggleMobileSidebar();
     });
+
+    // Mobile filter button (outside sidebar, in search bar area)
+    document.getElementById('mobile-filter-btn')?.addEventListener('click', () => {
+      _toggleMobileSidebar();
+    });
+
+    // Overlay backdrop closes sidebar
+    document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
+      _closeMobileSidebar();
+    });
+  }
+
+  function _toggleMobileSidebar() {
+    const sidebar = document.getElementById('filters-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const btn = document.getElementById('mobile-filter-btn');
+    const isOpen = sidebar?.classList.toggle('open');
+    overlay?.classList.toggle('visible', isOpen);
+    btn?.classList.toggle('active', isOpen);
+  }
+
+  function _closeMobileSidebar() {
+    document.getElementById('filters-sidebar')?.classList.remove('open');
+    document.getElementById('sidebar-overlay')?.classList.remove('visible');
+    document.getElementById('mobile-filter-btn')?.classList.remove('active');
   }
 
   function _buildEffectFilters(effects) {
