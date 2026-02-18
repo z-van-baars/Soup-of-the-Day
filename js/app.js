@@ -144,6 +144,7 @@
 
     switch (mode) {
       case 'ingredient':
+        document.querySelector('.ingredient-section')?.classList.remove('goal-active');
         IngredientGrid.setHighlightedIds([]);
         IngredientMode.activate(effects);
         IngredientGrid.setMode('ingredient');
@@ -156,6 +157,7 @@
         break;
 
       case 'merchant':
+        document.querySelector('.ingredient-section')?.classList.remove('goal-active');
         IngredientGrid.setHighlightedIds([]);
         MerchantMode.activate(ingredients, effects);
         IngredientGrid.setMode('merchant');

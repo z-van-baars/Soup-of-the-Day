@@ -17,20 +17,16 @@ const GoalMode = (() => {
     // Show goal panel, hide others
     document.getElementById('goal-panel')?.removeAttribute('hidden');
     document.getElementById('merchant-panel')?.setAttribute('hidden', '');
-    document.getElementById('search-bar-wrap')?.removeAttribute('hidden');
+
+    // Add goal-active: CSS hides the grid/search bar and grows the panel to fill
+    document.querySelector('.ingredient-section')?.classList.add('goal-active');
 
     // Right sidebar: show cooked-result placeholder (not a duplicate combo list)
     document.getElementById('results-content').innerHTML =
       '<p class="placeholder-text">Click a combo to see its cooked result.</p>';
 
-    // Set grid to ingredient-selection mode
     IngredientGrid.setMode('ingredient');
-
     _populateEffectDropdown();
-
-    // Wire the Find Recipes button
-    const searchBtn = document.getElementById('goal-search-btn');
-    if (searchBtn) searchBtn.onclick = _onSearch;
 
     // Re-apply highlight + search if an effect was already selected (re-activation)
     const effectId = document.getElementById('goal-effect-select')?.value;
@@ -42,9 +38,7 @@ const GoalMode = (() => {
       _highlightContributing('');
       _syncTierOptions();
       const resultsEl = document.getElementById('goal-results');
-      if (resultsEl) {
-        resultsEl.innerHTML = '<p class="placeholder-text">Select an effect and tier, then click Find Recipes.</p>';
-      }
+      if (resultsEl) resultsEl.innerHTML = '';
     }
   }
 
@@ -125,7 +119,7 @@ const GoalMode = (() => {
     const resultsEl = document.getElementById('goal-results');
 
     if (!effectId) {
-      if (resultsEl) resultsEl.innerHTML = '<p class="placeholder-text">Select an effect and tier, then click Find Recipes.</p>';
+      if (resultsEl) resultsEl.innerHTML = '';
       return;
     }
 
@@ -133,6 +127,10 @@ const GoalMode = (() => {
 
     setTimeout(() => {
       const effectDef = _effects.find(e => e.id === effectId);
+
+      // Respect active sidebar filters — lets users exclude dragon parts, etc.
+      const filteredIngredients = _ingredients.filter(i => Filters.passes(i));
+
       let combos = [];
       let resolvedTier = null;
 
@@ -140,13 +138,22 @@ const GoalMode = (() => {
         // Try from highest tier downward; use first that returns results
         const maxTier = effectDef?.tiers || 3;
         for (let t = maxTier; t >= 1; t--) {
-          combos = RecipeEngine.findBestCombos(effectId, t, _ingredients, _effects, 20);
+          combos = RecipeEngine.findBestCombos(effectId, t, filteredIngredients, _effects, 20);
           if (combos.length > 0) { resolvedTier = t; break; }
         }
       } else {
         resolvedTier = parseInt(tierVal, 10) || 1;
-        combos = RecipeEngine.findBestCombos(effectId, resolvedTier, _ingredients, _effects, 20);
+        combos = RecipeEngine.findBestCombos(effectId, resolvedTier, filteredIngredients, _effects, 20);
       }
+
+      // Deduplicate: same ingredient count + same effective outcome is a rank duplicate
+      const goalSeen = new Set();
+      combos = combos.filter(c => {
+        const key = `${c.ingredients.length}|${c.result.sellValue}|${c.result.tier}|${c.result.effect?.durationSec ?? 0}`;
+        if (goalSeen.has(key)) return false;
+        goalSeen.add(key);
+        return true;
+      });
 
       const tierName = resolvedTier
         ? (effectDef?.tier_names?.[resolvedTier - 1] || `Tier ${resolvedTier}`)

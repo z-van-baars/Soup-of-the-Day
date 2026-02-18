@@ -380,8 +380,26 @@ img { display: block; }
 
 .goal-results {
   margin-top: 12px;
-  max-height: 40vh;
   overflow-y: auto;
+}
+
+/* ── Goal mode: panel fills the ingredient section, grid/search hidden ── */
+.ingredient-section.goal-active > .mode-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ingredient-section.goal-active .goal-results {
+  flex: 1;
+  overflow-y: auto;
+  max-height: none;
+}
+
+.ingredient-section.goal-active .search-bar-wrap,
+.ingredient-section.goal-active .ingredient-grid {
+  display: none;
 }
 
 /* Merchant mode */
@@ -1319,6 +1337,25 @@ img { display: block; }
     margin-left: 0;
     flex-wrap: wrap;
     gap: 4px;
+  }
+
+  /* ── Goal mode controls: stack dropdowns, hide labels ── */
+  .goal-controls {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .goal-field {
+    width: 100%;
+  }
+
+  .goal-field label {
+    display: none;
+  }
+
+  .goal-field .styled-select {
+    width: 100%;
+    min-width: 0;
   }
 
   /* ── Ingredient section: flex-grows to fill space, scrolls inside ── */
