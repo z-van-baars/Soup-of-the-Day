@@ -73,7 +73,10 @@ const MerchantMode = (() => {
     }
 
     const allowDuplicates = document.getElementById('infinite-qty-toggle')?.checked ?? true;
-    const modeLabel = allowDuplicates ? 'infinite qty' : 'exact qty';
+    const capped = allowDuplicates && _ownedIds.size > 30;
+    const modeLabel = allowDuplicates
+      ? (capped ? 'infinite qty — showing top 30 items by value' : 'infinite qty')
+      : 'exact qty';
 
     resultsEl.innerHTML = `<p class="placeholder-text">Calculating (${modeLabel})...</p>`;
 

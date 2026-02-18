@@ -106,5 +106,23 @@
     "tiers": 3,
     "potency_thresholds": [1, 3, 7],
     "tier_names": ["Lv 1", "Lv 2", "Lv 3"]
+  },
+  {
+    "id": "swim-speed-up",
+    "name": "Zesty",
+    "prefix": "Zesty",
+    "description": "Temporarily boosts swimming speed.",
+    "tiers": 2,
+    "potency_thresholds": [1, 5],
+    "tier_names": ["Low", "High"]
+  },
+  {
+    "id": "bright",
+    "name": "Bright",
+    "prefix": "Bright",
+    "description": "Makes you glow, lighting dark areas.",
+    "tiers": 1,
+    "potency_thresholds": [1],
+    "tier_names": ["Lv 1"]
   }
 ]

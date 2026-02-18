@@ -326,7 +326,7 @@ const RecipeEngine = (() => {
     // For infinite mode with large inventories, cap candidates to avoid
     // combinatorial explosion. Always preserve all critters (needed for elixirs),
     // then fill remaining slots with highest sell-price non-critters.
-    const CAP = 24;
+    const CAP = 30;
     let candidates = owned;
     if (allowDuplicates && owned.length > CAP) {
       const critters = owned.filter(i => i.type === 'critter');
@@ -339,7 +339,6 @@ const RecipeEngine = (() => {
     const maxSize = allowDuplicates ? 5 : Math.min(5, candidates.length);
 
     for (let size = maxSize; size >= 1; size--) {
-      if (!allowDuplicates && candidates.length > 12 && size > 3) continue;
 
       const combos = combineFn(candidates, size);
       for (const combo of combos) {

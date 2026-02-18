@@ -350,6 +350,20 @@
     "fuse_value": null
   },
   {
+    "id": "glowing-cave-fish",
+    "name": "Glowing Cave Fish",
+    "category": "fish",
+    "subcategory": null,
+    "effect": "bright",
+    "effect_potency": 1,
+    "effect_duration_sec": 120,
+    "hearts": 1.0,
+    "sell_price": 6,
+    "type": "food",
+    "icon": "images/ingredients/glowing-cave-fish.png",
+    "fuse_value": null
+  },
+  {
     "id": "hearty-bass",
     "name": "Hearty Bass",
     "category": "fish",
@@ -504,6 +518,20 @@
     "fuse_value": 1
   },
   {
+    "id": "dazzlefruit",
+    "name": "Dazzlefruit",
+    "category": "fruit",
+    "subcategory": null,
+    "effect": null,
+    "effect_potency": 0,
+    "effect_duration_sec": 0,
+    "hearts": 0.5,
+    "sell_price": 20,
+    "type": "food",
+    "icon": "images/ingredients/dazzlefruit.png",
+    "fuse_value": 1
+  },
+  {
     "id": "fire-fruit",
     "name": "Fire Fruit",
     "category": "fruit",
@@ -627,6 +655,20 @@
     "sell_price": 3,
     "type": "food",
     "icon": "images/ingredients/shock-fruit.png",
+    "fuse_value": 1
+  },
+  {
+    "id": "splash-fruit",
+    "name": "Splash Fruit",
+    "category": "fruit",
+    "subcategory": null,
+    "effect": "swim-speed-up",
+    "effect_potency": 1,
+    "effect_duration_sec": 60,
+    "hearts": 0.5,
+    "sell_price": 2,
+    "type": "food",
+    "icon": "images/ingredients/splash-fruit.png",
     "fuse_value": 1
   },
   {
@@ -1468,6 +1510,20 @@
     "type": "food",
     "icon": "images/ingredients/sun-pumpkin.png",
     "fuse_value": 1
+  },
+  {
+    "id": "swift-carrot",
+    "name": "Swift Carrot",
+    "category": "vegetable",
+    "subcategory": null,
+    "effect": "speed-up",
+    "effect_potency": 1,
+    "effect_duration_sec": 60,
+    "hearts": 1.0,
+    "sell_price": 4,
+    "type": "food",
+    "icon": "images/ingredients/swift-carrot.png",
+    "fuse_value": null
   },
   {
     "id": "dinarals-claw",
@@ -3064,6 +3120,20 @@
     "type": "monster",
     "icon": "images/ingredients/white-maned-lynel-mace-horn.png",
     "fuse_value": 40
+  },
+  {
+    "id": "white-maned-lynel-saber-horn",
+    "name": "White-Maned Lynel Saber Horn",
+    "category": "monster-part",
+    "subcategory": "horns",
+    "effect": null,
+    "effect_potency": 8,
+    "effect_duration_sec": 225,
+    "hearts": 0,
+    "sell_price": 90,
+    "type": "monster",
+    "icon": "images/ingredients/white-maned-lynel-saber-horn.png",
+    "fuse_value": 44
   },
   {
     "id": "yellow-chuchu-jelly",
