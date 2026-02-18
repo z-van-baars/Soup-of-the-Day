@@ -139,6 +139,7 @@
               <option value="3">Tier 3</option>
             </select>
           </div>
+          <button class="btn-secondary goal-view-toggle" id="goal-view-toggle" title="Show ingredient grid">🔍</button>
         </div>
         <div class="goal-results" id="goal-results">
           <p class="placeholder-text">Select an effect and tier, then click Find Recipes.</p>
@@ -198,48 +199,50 @@
 
     </section>
 
-    <!-- Right: Recipe Builder + Results -->
-    <aside class="recipe-sidebar">
-
-      <!-- Recipe Slots -->
+    <!-- Right: Recipe Builder (collapsible on mobile) -->
+    <aside class="recipe-sidebar collapsed" id="recipe-sidebar">
       <div class="recipe-builder" id="recipe-builder">
         <div class="sidebar-header">
-          <h2 class="sidebar-title">Recipe</h2>
+          <div class="recipe-header-info">
+            <h2 class="sidebar-title">Recipe</h2>
+            <span class="recipe-slot-summary" id="recipe-slot-summary">○○○○○</span>
+          </div>
           <button class="btn-secondary" id="clear-recipe-btn">Clear</button>
+          <button class="recipe-toggle-btn" id="recipe-toggle-btn" aria-label="Toggle recipe detail">▲</button>
         </div>
-        <div class="recipe-slots" id="recipe-slots">
-          <div class="recipe-slot empty" data-slot="0">
-            <span class="slot-placeholder">Empty</span>
+        <div class="recipe-body" id="recipe-body">
+          <div class="recipe-slots" id="recipe-slots">
+            <div class="recipe-slot empty" data-slot="0">
+              <span class="slot-placeholder">Empty</span>
+            </div>
+            <div class="recipe-slot empty" data-slot="1">
+              <span class="slot-placeholder">Empty</span>
+            </div>
+            <div class="recipe-slot empty" data-slot="2">
+              <span class="slot-placeholder">Empty</span>
+            </div>
+            <div class="recipe-slot empty" data-slot="3">
+              <span class="slot-placeholder">Empty</span>
+            </div>
+            <div class="recipe-slot empty" data-slot="4">
+              <span class="slot-placeholder">Empty</span>
+            </div>
           </div>
-          <div class="recipe-slot empty" data-slot="1">
-            <span class="slot-placeholder">Empty</span>
-          </div>
-          <div class="recipe-slot empty" data-slot="2">
-            <span class="slot-placeholder">Empty</span>
-          </div>
-          <div class="recipe-slot empty" data-slot="3">
-            <span class="slot-placeholder">Empty</span>
-          </div>
-          <div class="recipe-slot empty" data-slot="4">
-            <span class="slot-placeholder">Empty</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Results Panel -->
-      <div class="results-panel" id="results-panel">
-        <h2 class="sidebar-title">Results</h2>
-        <div class="results-content" id="results-content">
-          <p class="placeholder-text">Add ingredients and cook to see results.</p>
-        </div>
-        <!-- Favorites -->
-        <div class="favorites-section" id="favorites-section" hidden>
-          <h3 class="favorites-title">Saved Recipes</h3>
-          <div class="favorites-list" id="favorites-list"></div>
         </div>
       </div>
-
     </aside>
+
+    <!-- Results Panel (between grid and recipe on mobile) -->
+    <div class="results-panel" id="results-panel">
+      <h2 class="sidebar-title">Results</h2>
+      <div class="results-content" id="results-content">
+        <p class="placeholder-text">Add ingredients and cook to see results.</p>
+      </div>
+      <div class="favorites-section" id="favorites-section" hidden>
+        <h3 class="favorites-title">Saved Recipes</h3>
+        <div class="favorites-list" id="favorites-list"></div>
+      </div>
+    </div>
 
   </main>
 

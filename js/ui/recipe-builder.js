@@ -31,7 +31,12 @@ const RecipeBuilder = (() => {
     // Clear button
     document.getElementById('clear-recipe-btn')?.addEventListener('click', clearAll);
 
-    // Cook button (handled externally via cook-btn, but we wire it here too)
+    // Collapse toggle button (mobile only — hidden on desktop via CSS)
+    document.getElementById('recipe-toggle-btn')?.addEventListener('click', () => {
+      document.getElementById('recipe-sidebar')?.classList.toggle('collapsed');
+      _updateToggleBtn();
+    });
+
     _renderSlots();
   }
 
@@ -43,6 +48,7 @@ const RecipeBuilder = (() => {
     if (_slots.length >= MAX_SLOTS) return false;
     _slots.push(ingredient);
     _renderSlots();
+    _autoExpand();
     _onChange && _onChange([..._slots]);
     return true;
   }
@@ -58,11 +64,12 @@ const RecipeBuilder = (() => {
   }
 
   /**
-   * Load a set of ingredients into the builder (e.g., from a favorite).
+   * Load a set of ingredients into the builder (e.g., from a favorite or goal combo).
    */
   function loadIngredients(ingredients) {
     _slots = ingredients.slice(0, MAX_SLOTS);
     _renderSlots();
+    _autoExpand();
     _onChange && _onChange([..._slots]);
   }
 
@@ -129,6 +136,34 @@ const RecipeBuilder = (() => {
         el.appendChild(ph);
       }
     });
+
+    _updateSlotSummary();
+  }
+
+  // Update the ●●●○○ summary in the recipe header
+  function _updateSlotSummary() {
+    const el = document.getElementById('recipe-slot-summary');
+    if (el) {
+      el.textContent = Array.from({ length: MAX_SLOTS }, (_, i) => _slots[i] ? '●' : '○').join('');
+    }
+  }
+
+  // Auto-expand the recipe panel on mobile when slots become non-empty
+  function _autoExpand() {
+    if (_slots.length === 0) return;
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    const sidebar = document.getElementById('recipe-sidebar');
+    if (sidebar?.classList.contains('collapsed')) {
+      sidebar.classList.remove('collapsed');
+      _updateToggleBtn();
+    }
+  }
+
+  // Sync the toggle button arrow with collapsed state
+  function _updateToggleBtn() {
+    const btn = document.getElementById('recipe-toggle-btn');
+    const collapsed = document.getElementById('recipe-sidebar')?.classList.contains('collapsed');
+    if (btn) btn.textContent = collapsed ? '▲' : '▼';
   }
 
   return { init, addIngredient, removeIngredient, loadIngredients, clearAll, getIngredients, isFull };

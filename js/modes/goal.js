@@ -4,11 +4,16 @@
  * User selects a target effect + tier.
  * Engine finds the best ingredient combos to achieve it.
  * Results shown as clickable combo cards (click loads into builder).
+ *
+ * View modes (toggled via goal-view-toggle button):
+ *   'recipes' — combo list fills the panel, grid hidden
+ *   'grid'    — ingredient grid visible with relevant items highlighted
  */
 
 const GoalMode = (() => {
   let _effects = [];
   let _ingredients = [];
+  let _viewMode = 'recipes'; // persists across re-activations
 
   function activate(ingredients, effects) {
     _effects = effects;
@@ -18,25 +23,28 @@ const GoalMode = (() => {
     document.getElementById('goal-panel')?.removeAttribute('hidden');
     document.getElementById('merchant-panel')?.setAttribute('hidden', '');
 
-    // Add goal-active: CSS hides the grid/search bar and grows the panel to fill
-    document.querySelector('.ingredient-section')?.classList.add('goal-active');
-
-    // Right sidebar: show cooked-result placeholder (not a duplicate combo list)
+    // Right sidebar: show cooked-result placeholder
     document.getElementById('results-content').innerHTML =
       '<p class="placeholder-text">Click a combo to see its cooked result.</p>';
 
     IngredientGrid.setMode('ingredient');
     _populateEffectDropdown();
 
-    // Re-apply highlight + search if an effect was already selected (re-activation)
+    // Wire view toggle button
+    const viewBtn = document.getElementById('goal-view-toggle');
+    if (viewBtn) viewBtn.onclick = _toggleViewMode;
+
+    // Re-apply state on re-activation
     const effectId = document.getElementById('goal-effect-select')?.value;
     if (effectId) {
       _highlightContributing(effectId);
       _syncTierOptions();
+      _applyViewMode();
       _onSearch();
     } else {
       _highlightContributing('');
       _syncTierOptions();
+      _applyViewMode();
       const resultsEl = document.getElementById('goal-results');
       if (resultsEl) resultsEl.innerHTML = '';
     }
@@ -47,7 +55,6 @@ const GoalMode = (() => {
     if (!select) return;
 
     if (select.options.length > 1) {
-      // Already populated — just re-wire the handler
       select.onchange = _onEffectChange;
       return;
     }
@@ -78,16 +85,14 @@ const GoalMode = (() => {
     const tiers = effectDef?.tiers || 0;
     const tierField = tierSelect.closest('.goal-field');
 
-    // Hide tier selector when no effect selected or effect has no tiers
     if (!effectId || tiers === 0) {
       if (tierField) tierField.style.display = 'none';
       return;
     }
 
-    const prevVal = tierSelect.value; // preserve selection across re-syncs
+    const prevVal = tierSelect.value;
     tierSelect.innerHTML = '';
 
-    // "Best Available" at the top
     const bestOpt = document.createElement('option');
     bestOpt.value = 'best';
     bestOpt.textContent = 'Best Available';
@@ -100,7 +105,6 @@ const GoalMode = (() => {
       tierSelect.appendChild(opt);
     }
 
-    // Restore previous selection if still valid
     if (prevVal === 'best' || (parseInt(prevVal, 10) >= 1 && parseInt(prevVal, 10) <= tiers)) {
       tierSelect.value = prevVal;
     } else {
@@ -108,8 +112,6 @@ const GoalMode = (() => {
     }
 
     if (tierField) tierField.style.display = '';
-
-    // Auto-search on tier change
     tierSelect.onchange = _onSearch;
   }
 
@@ -128,14 +130,13 @@ const GoalMode = (() => {
     setTimeout(() => {
       const effectDef = _effects.find(e => e.id === effectId);
 
-      // Respect active sidebar filters — lets users exclude dragon parts, etc.
+      // Respect active sidebar filters — lets users exclude dragon parts etc.
       const filteredIngredients = _ingredients.filter(i => Filters.passes(i));
 
       let combos = [];
       let resolvedTier = null;
 
       if (!tierVal || tierVal === 'best') {
-        // Try from highest tier downward; use first that returns results
         const maxTier = effectDef?.tiers || 3;
         for (let t = maxTier; t >= 1; t--) {
           combos = RecipeEngine.findBestCombos(effectId, t, filteredIngredients, _effects, 20);
@@ -146,7 +147,7 @@ const GoalMode = (() => {
         combos = RecipeEngine.findBestCombos(effectId, resolvedTier, filteredIngredients, _effects, 20);
       }
 
-      // Deduplicate: same ingredient count + same effective outcome is a rank duplicate
+      // Deduplicate: same ingredient count + same effective outcome
       const goalSeen = new Set();
       combos = combos.filter(c => {
         const key = `${c.ingredients.length}|${c.result.sellValue}|${c.result.tier}|${c.result.effect?.durationSec ?? 0}`;
@@ -169,7 +170,7 @@ const GoalMode = (() => {
         } else {
           const heading = document.createElement('p');
           heading.style.cssText = 'font-size:12px;color:var(--text-secondary);margin-bottom:8px;';
-          heading.textContent = `${combos.length} combo${combos.length !== 1 ? 's' : ''} found for ${title}. Click a combo to load it.`;
+          heading.textContent = `${combos.length} combo${combos.length !== 1 ? 's' : ''} found for ${title}. Click to load.`;
           resultsEl.appendChild(heading);
 
           for (const combo of combos) {
@@ -177,7 +178,6 @@ const GoalMode = (() => {
           }
         }
       }
-      // Right sidebar stays as-is — updates when user clicks a combo
     }, 10);
   }
 
@@ -233,6 +233,27 @@ const GoalMode = (() => {
     return card;
   }
 
+  function _toggleViewMode() {
+    _viewMode = _viewMode === 'recipes' ? 'grid' : 'recipes';
+    _applyViewMode();
+  }
+
+  function _applyViewMode() {
+    const section = document.querySelector('.ingredient-section');
+    const btn = document.getElementById('goal-view-toggle');
+    const goalResults = document.getElementById('goal-results');
+
+    if (_viewMode === 'recipes') {
+      section?.classList.add('goal-active');
+      if (goalResults) goalResults.style.display = '';
+      if (btn) { btn.textContent = '🔍'; btn.title = 'Browse ingredient grid'; }
+    } else {
+      section?.classList.remove('goal-active');
+      if (goalResults) goalResults.style.display = 'none';
+      if (btn) { btn.textContent = '📋'; btn.title = 'Show best recipes'; }
+    }
+  }
+
   function _highlightContributing(effectId) {
     if (!effectId) {
       IngredientGrid.setHighlightedIds([]);
@@ -244,12 +265,10 @@ const GoalMode = (() => {
 
     let ids;
     if (hasElixirRoute) {
-      // Critters with this effect + all monster parts (monster parts boost elixir potency)
       ids = _ingredients
         .filter(i => (i.type === 'critter' && i.effect === effectId) || i.type === 'monster')
         .map(i => i.id);
     } else {
-      // Food ingredients that carry this effect
       ids = _ingredients
         .filter(i => i.effect === effectId)
         .map(i => i.id);
@@ -258,5 +277,8 @@ const GoalMode = (() => {
     IngredientGrid.setHighlightedIds(ids);
   }
 
-  return { activate };
+  // Expose for app.js to clean up on mode switch
+  function getViewMode() { return _viewMode; }
+
+  return { activate, getViewMode };
 })();
