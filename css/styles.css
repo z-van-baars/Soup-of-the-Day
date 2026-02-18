@@ -1235,7 +1235,8 @@ img { display: block; }
     --header-h: 52px;
   }
 
-  html, body { overflow: auto; }
+  /* Page stays locked — no full-page scroll.
+     Ingredient grid and results panel scroll internally. */
 
   /* ── Header ── */
   .header-inner { padding: 0 12px; gap: 10px; }
@@ -1245,21 +1246,20 @@ img { display: block; }
   .brand-sub { display: none !important; }
 
   .mode-tabs { gap: 2px; padding: 3px; }
-  .mode-tab { padding: 5px 10px; gap: 4px; }
+  .mode-tab { padding: 5px 8px; gap: 3px; }
   .tab-label { font-size: 11px; }
   .tab-icon  { font-size: 13px; }
 
-  /* ── Main grid collapses to single column ── */
+  /* ── Main: flex column, fills the full viewport ── */
   .app-main {
     display: flex;
     flex-direction: column;
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
+    height: 100dvh;
+    overflow: hidden;
     padding-top: var(--header-h);
   }
 
-  /* ── Filter drawer ── */
+  /* ── Filter drawer: slide in from left ── */
   .filters-sidebar {
     position: fixed;
     top: var(--header-h);
@@ -1275,12 +1275,12 @@ img { display: block; }
     transform: translateX(0);
   }
 
-  /* The in-sidebar toggle button becomes a close (✕) button */
+  /* In-sidebar close button */
   .sidebar-toggle {
     display: block;
   }
 
-  /* ── Mobile filter button (visible outside the drawer) ── */
+  /* ── Mobile filter button (lives in search bar row) ── */
   .mobile-filter-btn {
     display: flex;
     align-items: center;
@@ -1304,10 +1304,10 @@ img { display: block; }
     color: var(--gold-bright);
   }
 
-  /* ── Search bar area wraps to 2 rows on mobile ── */
+  /* ── Search bar wraps to 2 rows ── */
   .search-bar-wrap {
     flex-wrap: wrap;
-    gap: 8px 8px;
+    gap: 6px 8px;
     padding: 8px 10px 6px;
   }
 
@@ -1327,26 +1327,34 @@ img { display: block; }
     gap: 4px;
   }
 
-  /* ── Ingredient section ── */
+  /* ── Ingredient section: flex-grows to fill space, scrolls inside ── */
   .ingredient-section {
-    overflow: visible;
     flex: 1;
+    overflow: hidden;
+    min-height: 0; /* required so flex child can shrink */
   }
 
   .ingredient-grid {
-    max-height: none;
-    overflow-y: visible;
+    overflow-y: auto;
+    /* height is naturally constrained by the flex parent */
   }
 
-  /* ── Recipe sidebar becomes a bottom section ── */
+  /* ── Recipe sidebar: pinned at bottom, capped height ── */
   .recipe-sidebar {
+    flex-shrink: 0;
     border-left: none;
     border-top: 1px solid var(--border-dim);
-    overflow: visible;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 52vh;
+  }
+
+  .recipe-builder {
     flex-shrink: 0;
   }
 
-  /* Recipe slots: 2-column grid on mobile to reduce vertical height */
+  /* Recipe slots: 2-column grid to keep height compact */
   .recipe-slots {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1365,9 +1373,11 @@ img { display: block; }
     white-space: nowrap;
   }
 
-  /* Results panel expands naturally */
+  /* Results panel scrolls inside the sidebar */
   .results-panel {
-    overflow: visible;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
   }
 }
 
