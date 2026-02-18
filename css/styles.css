@@ -864,12 +864,6 @@ img { display: block; }
   box-shadow: 0 0 12px var(--gold-shadow);
 }
 
-.btn-cook {
-  flex: 1;
-  padding: 10px 16px;
-  font-size: 14px;
-}
-
 .btn-secondary {
   background: var(--bg-card);
   border: 1px solid var(--border-mid);

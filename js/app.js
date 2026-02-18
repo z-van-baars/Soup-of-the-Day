@@ -82,17 +82,6 @@
 
   Results.renderFavorites();
 
-  // ── Cook button ─────────────────────────────────────────────────────────────
-  document.getElementById('cook-btn')?.addEventListener('click', () => {
-    const ingrs = RecipeBuilder.getIngredients();
-    if (ingrs.length === 0) {
-      Results.showToast('Add at least one ingredient first!', 'error');
-      return;
-    }
-    const result = RecipeEngine.computeRecipe(ingrs, effects);
-    Results.renderResult(result, ingrs);
-  });
-
   // ── Mode tabs ───────────────────────────────────────────────────────────────
   document.querySelectorAll('.mode-tab').forEach(tab => {
     tab.addEventListener('click', () => {
