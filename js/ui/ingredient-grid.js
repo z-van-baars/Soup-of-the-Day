@@ -15,6 +15,8 @@ const IngredientGrid = (() => {
   let _onMerchantToggle = null;
   let _merchantOwned = new Set();
   let _selectedIds = new Set();
+  let _highlightedIds = new Set();
+  let _lastFiltered = null;
   let _showFuse = false;
 
   // Category → CSS color class
@@ -67,6 +69,7 @@ const IngredientGrid = (() => {
     if (!grid) return;
 
     const items = filteredIngredients || _ingredients;
+    _lastFiltered = items;
 
     if (items.length === 0) {
       grid.innerHTML = '<div class="no-results">No ingredients match your filters.</div>';
@@ -93,6 +96,8 @@ const IngredientGrid = (() => {
     card.setAttribute('role', 'listitem');
     card.setAttribute('title', ing.name);
     card.dataset.id = ing.id;
+
+    if (_highlightedIds.has(ing.id)) card.classList.add('highlighted');
 
     if (_mode === 'ingredient') {
       if (_selectedIds.has(ing.id)) card.classList.add('selected');
@@ -194,7 +199,9 @@ const IngredientGrid = (() => {
       'energizing':  '💚',
       'enduring':    '🌀',
       'hearty':      '💛',
-      'gloom-resist':'🌑',
+      'gloom-resist':  '🌑',
+      'swim-speed-up': '🌊',
+      'bright':        '💡',
     };
     return map[effectId] || '✨';
   }
@@ -207,5 +214,10 @@ const IngredientGrid = (() => {
     if (card) card.classList.toggle('selected', selected);
   }
 
-  return { init, setMode, setSelectedIds, setMerchantOwned, setShowFuse, renderGrid, updateCardSelection };
+  function setHighlightedIds(ids) {
+    _highlightedIds = new Set(ids);
+    if (_lastFiltered) renderGrid(_lastFiltered);
+  }
+
+  return { init, setMode, setSelectedIds, setMerchantOwned, setHighlightedIds, setShowFuse, renderGrid, updateCardSelection };
 })();

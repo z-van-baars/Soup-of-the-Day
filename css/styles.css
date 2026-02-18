@@ -623,6 +623,11 @@ img { display: block; }
   box-shadow: 0 0 12px var(--gold-shadow);
 }
 
+.ingredient-card.highlighted {
+  border-color: rgba(80, 180, 80, 0.5);
+  box-shadow: 0 0 10px rgba(80, 180, 80, 0.18);
+}
+
 .ingredient-card.disabled {
   opacity: 0.35;
   cursor: not-allowed;

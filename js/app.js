@@ -144,6 +144,7 @@
 
     switch (mode) {
       case 'ingredient':
+        IngredientGrid.setHighlightedIds([]);
         IngredientMode.activate(effects);
         IngredientGrid.setMode('ingredient');
         IngredientGrid.setSelectedIds(RecipeBuilder.getIngredients().map(i => i.id));
@@ -155,6 +156,7 @@
         break;
 
       case 'merchant':
+        IngredientGrid.setHighlightedIds([]);
         MerchantMode.activate(ingredients, effects);
         IngredientGrid.setMode('merchant');
         break;
