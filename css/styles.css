@@ -838,11 +838,6 @@ img { display: block; }
   transition: opacity var(--transition);
 }
 
-.recipe-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
 
 /* ── Buttons ─────────────────────────────────────────────────────── */
 .btn-primary {
