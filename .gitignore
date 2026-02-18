@@ -1,0 +1,14 @@
+# Claude Code local settings
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+scraper/__pycache__/
+
+# Original oversized images (processed copies are in images/ingredients/)
+images/new/
+
+# OS
+.DS_Store
+Thumbs.db

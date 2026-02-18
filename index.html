@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoupOfTheDay — TotK Recipe Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">🍲</span>
+        <h1 class="brand-title"><span class="brand-key">S</span>oup of the <span class="brand-key">D</span>ay</h1>
+        <span class="brand-sub">TotK Recipe Calculator</span>
+      </div>
+      <nav class="mode-tabs" role="tablist" aria-label="Calculator mode">
+        <button class="mode-tab active" data-mode="ingredient" role="tab" aria-selected="true">
+          <span class="tab-icon">🧪</span>
+          <span class="tab-label">Ingredient</span>
+        </button>
+        <button class="mode-tab" data-mode="goal" role="tab" aria-selected="false">
+          <span class="tab-icon">🎯</span>
+          <span class="tab-label">Goal</span>
+        </button>
+        <button class="mode-tab" data-mode="merchant" role="tab" aria-selected="false">
+          <span class="tab-icon">💎</span>
+          <span class="tab-label">Merchant</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="app-main">
+
+    <!-- Left: Filters Sidebar -->
+    <aside class="filters-sidebar" id="filters-sidebar">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">Filters</h2>
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle filters">&#9776;</button>
+      </div>
+      <div class="filter-group" id="filter-group">
+        <div class="filter-section">
+          <h3 class="filter-section-title">
+            <label class="filter-type-master"><input type="checkbox" data-type-master="food" checked> Food</label>
+          </h3>
+          <label class="filter-item"><input type="checkbox" name="filter" value="fruit" data-type="food" checked> Fruit</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="vegetable" data-type="food" checked> Vegetable</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="mushroom" data-type="food" checked> Mushroom</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="meat" data-type="food" checked> Meat</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="fish" data-type="food" checked> Fish</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="seafood" data-type="food" checked> Seafood</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="herb" data-type="food" checked> Herb / Grain</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="nut" data-type="food" checked> Nut</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="other" data-type="food" checked> Other</label>
+        </div>
+        <div class="filter-section">
+          <h3 class="filter-section-title">
+            <label class="filter-type-master"><input type="checkbox" data-type-master="critter" checked> Critters</label>
+          </h3>
+          <label class="filter-item"><input type="checkbox" name="filter" value="bug" data-type="critter" checked> Bug</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="lizard" data-type="critter" checked> Lizard</label>
+          <label class="filter-item"><input type="checkbox" name="filter" value="frog" data-type="critter" checked> Frog</label>
+        </div>
+        <div class="filter-section">
+          <h3 class="filter-section-title">
+            <label class="filter-type-master"><input type="checkbox" data-type-master="monster" checked> Monster Parts</label>
+          </h3>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="eyeballs" data-type="monster" checked> Eyeballs</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="wings" data-type="monster" checked> Wings</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="horns" data-type="monster" checked> Horns</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="fangs" data-type="monster" checked> Teeth / Fangs</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="tails" data-type="monster" checked> Tails</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="guts" data-type="monster" checked> Guts</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="claws" data-type="monster" checked> Claws / Talons / Nails</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="jellies" data-type="monster" checked> Chuchu Jellies</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="zonai" data-type="monster" checked> Zonai</label>
+          <label class="filter-item"><input type="checkbox" name="subcategory-filter" value="other" data-type="monster" checked> Other</label>
+        </div>
+        <div class="filter-section">
+          <h3 class="filter-section-title">
+            <label class="filter-type-master"><input type="checkbox" data-type-master="dragon" checked> Dragon</label>
+          </h3>
+          <label class="filter-item"><input type="checkbox" name="filter" value="dragon-part" data-type="dragon" checked> Dragon Part</label>
+        </div>
+        <div class="filter-section">
+          <h3 class="filter-section-title">Fuse Bonus</h3>
+          <label class="filter-item">
+            <input type="checkbox" id="filter-no-fuse"> Hide items with fuse bonus
+          </label>
+          <div class="fuse-threshold-wrap" id="fuse-threshold-wrap">
+            <label class="filter-item" style="margin-top:4px;">
+              <input type="checkbox" id="filter-fuse-max-enabled"> Max fuse bonus:
+            </label>
+            <div class="fuse-incrementer" id="fuse-incrementer" style="opacity:0.4;pointer-events:none;">
+              <button class="fuse-inc-btn" id="fuse-dec">−</button>
+              <span class="fuse-inc-val" id="fuse-max-val">30</span>
+              <button class="fuse-inc-btn" id="fuse-inc">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="filter-section">
+          <h3 class="filter-section-title">Effect</h3>
+          <div class="effect-filter" id="effect-filter-list">
+            <!-- populated by filters.js -->
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="btn-link" id="filter-all">All</button>
+          <button class="btn-link" id="filter-none">None</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center: Ingredient Grid -->
+    <section class="ingredient-section">
+
+      <!-- Goal Mode Panel (hidden by default) -->
+      <div class="mode-panel" id="goal-panel" hidden>
+        <div class="goal-controls">
+          <div class="goal-field">
+            <label for="goal-effect-select">Target Effect</label>
+            <select id="goal-effect-select" class="styled-select">
+              <option value="">— Choose an effect —</option>
+            </select>
+          </div>
+          <div class="goal-field">
+            <label for="goal-tier-select">Tier</label>
+            <select id="goal-tier-select" class="styled-select">
+              <option value="1">Tier 1</option>
+              <option value="2">Tier 2</option>
+              <option value="3">Tier 3</option>
+            </select>
+          </div>
+          <button class="btn-primary" id="goal-search-btn">Find Recipes</button>
+        </div>
+        <div class="goal-results" id="goal-results">
+          <p class="placeholder-text">Select an effect and tier, then click Find Recipes.</p>
+        </div>
+      </div>
+
+      <!-- Merchant Mode Panel (hidden by default) -->
+      <div class="mode-panel" id="merchant-panel" hidden>
+        <div class="merchant-header">
+          <p class="merchant-desc">Check the ingredients you currently own. Results will show your best sell-value recipes.</p>
+          <div class="merchant-actions">
+            <button class="btn-link" id="merchant-check-all">Check All</button>
+            <button class="btn-link" id="merchant-check-none">Uncheck All</button>
+            <label class="qty-toggle-wrap" title="When on, each owned ingredient can fill multiple recipe slots">
+              <input type="checkbox" id="infinite-qty-toggle" checked>
+              <span class="qty-toggle-label">Infinite qty</span>
+            </label>
+            <button class="btn-primary" id="merchant-calc-btn">Calculate</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Bar (Ingredient + Merchant modes) -->
+      <div class="search-bar-wrap" id="search-bar-wrap">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="ingredient-search"
+            class="search-input"
+            placeholder="Search ingredients…"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button class="search-clear" id="search-clear" aria-label="Clear search" hidden>✕</button>
+        </div>
+        <span class="ingredient-count" id="ingredient-count"></span>
+        <div class="sort-controls" id="sort-controls">
+          <span class="sort-label">Sort:</span>
+          <button class="sort-btn active" id="sort-name" title="Sort by name">Name</button>
+          <button class="sort-btn" id="sort-value" title="Sort by sell value">Value</button>
+          <button class="sort-btn" id="sort-fuse" title="Sort by fuse bonus">Fuse</button>
+          <button class="sort-dir-btn" id="sort-dir" title="Toggle sort direction">↑</button>
+          <label class="fuse-show-toggle" title="Show fuse bonus on cards">
+            <input type="checkbox" id="show-fuse-toggle">
+            <span>⚔ Fuse</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Ingredient Grid -->
+      <div class="ingredient-grid" id="ingredient-grid" role="list">
+        <!-- populated by ingredient-grid.js -->
+        <div class="grid-loading">Loading ingredients…</div>
+      </div>
+
+    </section>
+
+    <!-- Right: Recipe Builder + Results -->
+    <aside class="recipe-sidebar">
+
+      <!-- Recipe Slots -->
+      <div class="recipe-builder" id="recipe-builder">
+        <h2 class="sidebar-title">Recipe</h2>
+        <div class="recipe-slots" id="recipe-slots">
+          <div class="recipe-slot empty" data-slot="0">
+            <span class="slot-placeholder">Empty</span>
+          </div>
+          <div class="recipe-slot empty" data-slot="1">
+            <span class="slot-placeholder">Empty</span>
+          </div>
+          <div class="recipe-slot empty" data-slot="2">
+            <span class="slot-placeholder">Empty</span>
+          </div>
+          <div class="recipe-slot empty" data-slot="3">
+            <span class="slot-placeholder">Empty</span>
+          </div>
+          <div class="recipe-slot empty" data-slot="4">
+            <span class="slot-placeholder">Empty</span>
+          </div>
+        </div>
+        <div class="recipe-actions">
+          <button class="btn-primary btn-cook" id="cook-btn">Cook It!</button>
+          <button class="btn-secondary" id="clear-recipe-btn">Clear</button>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="results-panel" id="results-panel">
+        <h2 class="sidebar-title">Results</h2>
+        <div class="results-content" id="results-content">
+          <p class="placeholder-text">Add ingredients and cook to see results.</p>
+        </div>
+        <!-- Favorites -->
+        <div class="favorites-section" id="favorites-section" hidden>
+          <h3 class="favorites-title">Saved Recipes</h3>
+          <div class="favorites-list" id="favorites-list"></div>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- JS modules (order matters — dependencies first) -->
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/recipe-engine.js"></script>
+  <script src="js/ui/filters.js"></script>
+  <script src="js/ui/search.js"></script>
+  <script src="js/ui/ingredient-grid.js"></script>
+  <script src="js/ui/recipe-builder.js"></script>
+  <script src="js/ui/results.js"></script>
+  <script src="js/modes/goal.js"></script>
+  <script src="js/modes/ingredient.js"></script>
+  <script src="js/modes/merchant.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
