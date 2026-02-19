@@ -13,7 +13,7 @@ const IngredientGrid = (() => {
   let _mode = 'ingredient';
   let _onSelect = null;
   let _onMerchantToggle = null;
-  let _merchantOwned = new Set();
+  let _merchantOwned = new Map(); // id → qty (1–5)
   let _selectedIds = new Set();
   let _highlightedIds = new Set();
   let _lastFiltered = null;
@@ -58,7 +58,21 @@ const IngredientGrid = (() => {
   }
 
   function setMerchantOwned(owned) {
-    _merchantOwned = owned instanceof Set ? owned : new Set(owned);
+    _merchantOwned = owned instanceof Map ? owned : new Map();
+  }
+
+  /** Update one ingredient's qty + its badge in the DOM. Used by check-all/none. */
+  function setMerchantQty(id, qty) {
+    if (qty <= 0) _merchantOwned.delete(id);
+    else _merchantOwned.set(id, Math.min(qty, 5));
+    const card = document.querySelector(`.ingredient-card[data-id="${id}"]`);
+    if (card) _updateBadge(card.querySelector('.merchant-qty-badge'), qty);
+  }
+
+  function _updateBadge(badge, qty) {
+    if (!badge) return;
+    badge.textContent = qty > 0 ? String(qty) : '';
+    badge.classList.toggle('active', qty > 0);
   }
 
   /**
@@ -107,24 +121,33 @@ const IngredientGrid = (() => {
     } else if (_mode === 'merchant') {
       card.classList.add('merchant-mode');
 
-      const check = document.createElement('div');
-      check.className = 'merchant-check' + (_merchantOwned.has(ing.id) ? ' checked' : '');
-      check.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const owned = _merchantOwned.has(ing.id);
-        if (owned) _merchantOwned.delete(ing.id);
-        else _merchantOwned.add(ing.id);
-        check.classList.toggle('checked', !owned);
-        if (_onMerchantToggle) _onMerchantToggle(ing.id, !owned);
+      const badge = document.createElement('div');
+      const initQty = _merchantOwned.get(ing.id) || 0;
+      badge.className = 'merchant-qty-badge' + (initQty > 0 ? ' active' : '');
+      badge.textContent = initQty > 0 ? String(initQty) : '';
+
+      // Badge click: reset to 0 when active; otherwise let click fall through to card.
+      badge.addEventListener('click', (e) => {
+        const qty = _merchantOwned.get(ing.id) || 0;
+        if (qty > 0) {
+          e.stopPropagation();
+          _merchantOwned.delete(ing.id);
+          _updateBadge(badge, 0);
+          if (_onMerchantToggle) _onMerchantToggle(ing.id, 0);
+        }
       });
-      card.appendChild(check);
+
+      // Card click: cycle 0→1→2→3→4→5→0
       card.addEventListener('click', () => {
-        const owned = _merchantOwned.has(ing.id);
-        if (owned) _merchantOwned.delete(ing.id);
-        else _merchantOwned.add(ing.id);
-        check.classList.toggle('checked', !owned);
-        if (_onMerchantToggle) _onMerchantToggle(ing.id, !owned);
+        const qty = _merchantOwned.get(ing.id) || 0;
+        const newQty = (qty + 1) % 6;
+        if (newQty <= 0) _merchantOwned.delete(ing.id);
+        else _merchantOwned.set(ing.id, newQty);
+        _updateBadge(badge, newQty);
+        if (_onMerchantToggle) _onMerchantToggle(ing.id, newQty);
       });
+
+      card.appendChild(badge);
     }
 
     // Icon area
@@ -227,5 +250,5 @@ const IngredientGrid = (() => {
     if (_lastFiltered) renderGrid(_lastFiltered);
   }
 
-  return { init, setMode, setSelectedIds, setMerchantOwned, setHighlightedIds, setShowFuse, renderGrid, updateCardSelection };
+  return { init, setMode, setSelectedIds, setMerchantOwned, setMerchantQty, setHighlightedIds, setShowFuse, renderGrid, updateCardSelection };
 })();

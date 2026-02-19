@@ -8,7 +8,7 @@
 const MerchantMode = (() => {
   let _effects = [];
   let _ingredients = [];
-  let _ownedIds = new Set(); // session only
+  let _ownedQtys = new Map(); // id → qty (1–5), session only
 
   function activate(ingredients, effects) {
     _effects = effects;
@@ -21,75 +21,60 @@ const MerchantMode = (() => {
 
     // Set grid to merchant mode
     IngredientGrid.setMode('merchant');
-    IngredientGrid.setMerchantOwned(_ownedIds);
+    IngredientGrid.setMerchantOwned(_ownedQtys);
 
-    // Wire buttons
+    // Wire buttons (clone to remove stale listeners)
     const checkAllBtn = document.getElementById('merchant-check-all');
     const checkNoneBtn = document.getElementById('merchant-check-none');
     const calcBtn = document.getElementById('merchant-calc-btn');
-
-    // Remove old listeners by cloning
     checkAllBtn?.replaceWith(checkAllBtn.cloneNode(true));
     checkNoneBtn?.replaceWith(checkNoneBtn.cloneNode(true));
     calcBtn?.replaceWith(calcBtn.cloneNode(true));
 
     document.getElementById('merchant-check-all')?.addEventListener('click', () => {
-      // Add all currently visible ingredients to owned
       const grid = document.getElementById('ingredient-grid');
       grid?.querySelectorAll('.ingredient-card[data-id]').forEach(card => {
-        _ownedIds.add(card.dataset.id);
-        card.querySelector('.merchant-check')?.classList.add('checked');
+        IngredientGrid.setMerchantQty(card.dataset.id, 5);
       });
     });
 
     document.getElementById('merchant-check-none')?.addEventListener('click', () => {
       const grid = document.getElementById('ingredient-grid');
       grid?.querySelectorAll('.ingredient-card[data-id]').forEach(card => {
-        _ownedIds.delete(card.dataset.id);
-        card.querySelector('.merchant-check')?.classList.remove('checked');
+        IngredientGrid.setMerchantQty(card.dataset.id, 0);
       });
     });
 
     document.getElementById('merchant-calc-btn')?.addEventListener('click', _calculate);
 
-
-    // Show placeholder in results
     document.getElementById('results-content').innerHTML =
-      '<p class="placeholder-text">Check ingredients you own, then click Calculate.</p>';
+      '<p class="placeholder-text">Set quantities for ingredients you own, then click Calculate.</p>';
   }
 
-  function onMerchantToggle(id, owned) {
-    if (owned) _ownedIds.add(id);
-    else _ownedIds.delete(id);
+  function onMerchantToggle(id, qty) {
+    if (qty <= 0) _ownedQtys.delete(id);
+    else _ownedQtys.set(id, qty);
   }
 
   function _calculate() {
     const resultsEl = document.getElementById('results-content');
     if (!resultsEl) return;
 
-    if (_ownedIds.size === 0) {
-      resultsEl.innerHTML = '<p class="placeholder-text">Check at least one ingredient first.</p>';
+    if (_ownedQtys.size === 0) {
+      resultsEl.innerHTML = '<p class="placeholder-text">Set at least one ingredient quantity first.</p>';
       return;
     }
 
-    const allowDuplicates = document.getElementById('infinite-qty-toggle')?.checked ?? true;
-    const capped = allowDuplicates && _ownedIds.size > 30;
-    const modeLabel = allowDuplicates
-      ? (capped ? 'infinite qty — showing top 30 items by value' : 'infinite qty')
-      : 'exact qty';
+    const capped = _ownedQtys.size > 30;
+    const label = capped ? 'Best Sell Value Recipes (top 30 by value)' : 'Best Sell Value Recipes';
 
-    resultsEl.innerHTML = `<p class="placeholder-text">Calculating (${modeLabel})...</p>`;
+    resultsEl.innerHTML = '<p class="placeholder-text">Calculating...</p>';
 
     setTimeout(() => {
-      const combos = RecipeEngine.findAllValidRecipes(
-        _ownedIds, _ingredients, _effects, 30,
-        { allowDuplicates }
-      );
-      Results.renderComboList(combos, `Best Sell Value Recipes (${modeLabel})`);
+      const combos = RecipeEngine.findAllValidRecipes(_ownedQtys, _ingredients, _effects, 30);
+      Results.renderComboList(combos, label);
     }, 10);
   }
 
-  function getOwnedIds() { return new Set(_ownedIds); }
-
-  return { activate, onMerchantToggle, getOwnedIds };
+  return { activate, onMerchantToggle };
 })();

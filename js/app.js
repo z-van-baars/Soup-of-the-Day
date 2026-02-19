@@ -31,8 +31,8 @@
         IngredientMode.onIngredientSelected(ingredient);
       }
     },
-    onMerchantToggle: (id, owned) => {
-      MerchantMode.onMerchantToggle(id, owned);
+    onMerchantToggle: (id, qty) => {
+      MerchantMode.onMerchantToggle(id, qty);
     },
   });
 

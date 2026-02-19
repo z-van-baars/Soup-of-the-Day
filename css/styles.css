@@ -434,17 +434,6 @@ img { display: block; }
   flex-wrap: wrap;
 }
 
-.qty-toggle-wrap {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.qty-toggle-label { user-select: none; }
 
 /* Search bar */
 .search-bar-wrap {
@@ -710,7 +699,7 @@ img { display: block; }
 }
 
 .ingredient-card.merchant-mode {
-  cursor: default;
+  cursor: pointer;
 }
 
 /* Ingredient icon */
@@ -755,30 +744,31 @@ img { display: block; }
   max-width: 64px;
 }
 
-/* Merchant checkbox overlay */
-.merchant-check {
+/* Merchant quantity badge */
+.merchant-qty-badge {
   position: absolute;
   top: 4px; left: 4px;
-  width: 14px; height: 14px;
-  border: 1px solid var(--gold-dim);
+  width: 18px; height: 18px;
   border-radius: 3px;
-  background: var(--bg-card);
-  cursor: pointer;
-  transition: background var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  user-select: none;
+  pointer-events: none;
+  background: transparent;
+  border: 1px solid rgba(200, 165, 60, 0.25);
+  color: transparent;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
 }
 
-.merchant-check.checked {
+.merchant-qty-badge.active {
   background: var(--gold-mid);
   border-color: var(--gold-bright);
-}
-
-.merchant-check.checked::after {
-  content: '✓';
-  position: absolute;
-  top: -2px; left: 1px;
-  font-size: 10px;
   color: var(--bg-deep);
-  font-weight: 700;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 /* Effect badge */

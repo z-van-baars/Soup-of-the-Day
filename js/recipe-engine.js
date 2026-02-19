@@ -285,50 +285,20 @@ const RecipeEngine = (() => {
   }
 
   /**
-   * Merchant mode: given a set of owned ingredient IDs, find all valid recipes
-   * sorted by sell value descending.
+   * Merchant mode: given a Map of owned ingredient IDs → quantities (1–5),
+   * find all valid recipes sorted by sell value descending.
    *
-   * @param {boolean} options.allowDuplicates - If true, each ingredient can fill
-   *   multiple slots (infinite quantity assumed). Defaults to true.
+   * Each ingredient can fill at most qty slots. qty=5 is equivalent to
+   * the old "infinite" mode since recipes cap at 5 ingredients.
    */
-  function findAllValidRecipes(ownedIngredientIds, allIngredients, effects, maxResults = 30, options = {}) {
-    const { allowDuplicates = true } = options;
-    const owned = allIngredients.filter(i => ownedIngredientIds.has(i.id));
+  function findAllValidRecipes(ownedQtys, allIngredients, effects, maxResults = 30) {
+    const owned = allIngredients.filter(i => (ownedQtys.get(i.id) || 0) > 0);
     if (owned.length === 0) return [];
 
-    const seen = new Set();
-    const results = [];
-
-    // Standard combinations (no repeat) — each item used at most once
-    function combineUnique(arr, size) {
-      if (size === 1) return arr.map(x => [x]);
-      const result = [];
-      for (let i = 0; i <= arr.length - size; i++) {
-        for (const c of combineUnique(arr.slice(i + 1), size - 1))
-          result.push([arr[i], ...c]);
-      }
-      return result;
-    }
-
-    // Combinations with repetition — each item can fill multiple slots
-    function combineRepeat(arr, size) {
-      if (size === 0) return [[]];
-      const result = [];
-      for (let i = 0; i < arr.length; i++) {
-        for (const c of combineRepeat(arr.slice(i), size - 1))
-          result.push([arr[i], ...c]);
-      }
-      return result;
-    }
-
-    const combineFn = allowDuplicates ? combineRepeat : combineUnique;
-
-    // For infinite mode with large inventories, cap candidates to avoid
-    // combinatorial explosion. Always preserve all critters (needed for elixirs),
-    // then fill remaining slots with highest sell-price non-critters.
+    // Cap candidates to avoid combinatorial explosion; always preserve critters.
     const CAP = 30;
     let candidates = owned;
-    if (allowDuplicates && owned.length > CAP) {
+    if (owned.length > CAP) {
       const critters = owned.filter(i => i.type === 'critter');
       const nonCritters = owned.filter(i => i.type !== 'critter')
         .sort((a, b) => b.sell_price - a.sell_price)
@@ -336,34 +306,46 @@ const RecipeEngine = (() => {
       candidates = [...critters, ...nonCritters];
     }
 
-    // Sort alphabetically so combineRepeat generates the canonical form first:
-    // alphabetically-earliest ingredient at maximum quantity, before any mixed combos.
-    // This makes the first occurrence of each (sellValue, effect, tier) group
-    // the clean canonical representative after deduplication below.
+    // Alphabetical order → canonical multiset ordering, no dedup needed.
     candidates = [...candidates].sort((a, b) => a.name.localeCompare(b.name));
 
-    const maxSize = allowDuplicates ? 5 : Math.min(5, candidates.length);
+    // Precompute suffix capacity for pruning: max slots each remaining item can fill.
+    const suffixCap = new Array(candidates.length + 1).fill(0);
+    for (let k = candidates.length - 1; k >= 0; k--) {
+      suffixCap[k] = suffixCap[k + 1] + Math.min(ownedQtys.get(candidates[k].id) || 0, 5);
+    }
 
-    for (let size = maxSize; size >= 1; size--) {
+    const results = [];
 
-      const combos = combineFn(candidates, size);
-      for (const combo of combos) {
-        const key = combo.map(i => i.id).sort().join(',');
-        if (seen.has(key)) continue;
-        seen.add(key);
-
-        const recipe = computeRecipe(combo, effects);
-        if (recipe.type === 'dubious') continue;
-
-        results.push({ ingredients: combo, result: recipe });
+    // Recursively build multiset combos of exactly `slotsLeft` items from
+    // candidates[itemIdx..], using each item at most min(qty, slotsLeft) times.
+    function generateCombos(itemIdx, slotsLeft, current) {
+      if (slotsLeft === 0) {
+        const recipe = computeRecipe(current, effects);
+        if (recipe.type !== 'dubious') {
+          results.push({ ingredients: [...current], result: recipe });
+        }
+        return;
       }
+      if (itemIdx >= candidates.length) return;
+      if (suffixCap[itemIdx] < slotsLeft) return; // can't fill remaining slots
+
+      const item = candidates[itemIdx];
+      const maxK = Math.min(ownedQtys.get(item.id) || 0, slotsLeft);
+      for (let k = 0; k <= maxK; k++) {
+        for (let j = 0; j < k; j++) current.push(item);
+        generateCombos(itemIdx + 1, slotsLeft - k, current);
+        for (let j = 0; j < k; j++) current.pop();
+      }
+    }
+
+    for (let size = 5; size >= 1; size--) {
+      generateCombos(0, size, []);
     }
 
     results.sort((a, b) => b.result.sellValue - a.result.sellValue);
 
-    // Deduplicate value-equivalent outcomes: same sell value + same effect + same tier
-    // are economically identical from a merchant perspective. Keep only the canonical
-    // form (first occurrence = alphabetically-first ingredient at max qty).
+    // Deduplicate value-equivalent outcomes: same sell value + effect + tier.
     const rankSeen = new Set();
     const deduped = results.filter(r => {
       const rKey = `${r.result.sellValue}|${r.result.effect?.effectId ?? 'none'}|${r.result.tier}`;
