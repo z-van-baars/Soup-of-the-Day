@@ -1396,6 +1396,9 @@ img { display: block; }
   .goal-controls .goal-field-effect .styled-select { width: 100%; min-width: 0; }
   .goal-field label { display: none; }
 
+  /* ── Merchant: description is self-evident on mobile, drop the explainer ── */
+  .merchant-desc { display: none; }
+
   /* ── Ingredient section: grows, scrolls internally ── */
   .ingredient-section {
     flex: 1;
