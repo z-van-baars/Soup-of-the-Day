@@ -1396,7 +1396,7 @@ img { display: block; }
 
   /* ── Goal controls: single row — Filter | Toggle | Tier | Effect ── */
   .goal-controls { flex-wrap: nowrap; align-items: center; gap: 5px; }
-  .goal-controls .mobile-filter-btn { flex-shrink: 0; padding: 6px 8px; }
+  .goal-controls .mobile-filter-btn { flex-shrink: 0; padding: 6px 8px; order: 0; }
   .goal-controls .goal-view-toggle  { flex-shrink: 0; padding: 5px 7px; }
   .goal-controls .goal-field-tier   { flex-shrink: 0; }
   .goal-controls .goal-field-tier .styled-select { min-width: 64px; width: auto; }
