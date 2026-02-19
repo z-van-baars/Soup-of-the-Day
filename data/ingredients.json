@@ -574,20 +574,6 @@
     "fuse_value": 1
   },
   {
-    "id": "hearty-durian",
-    "name": "Hearty Durian",
-    "category": "fruit",
-    "subcategory": null,
-    "effect": "hearty",
-    "effect_potency": 4,
-    "effect_duration_sec": 0,
-    "hearts": 0.5,
-    "sell_price": 15,
-    "type": "food",
-    "icon": "images/ingredients/hearty-durian.png",
-    "fuse_value": 1
-  },
-  {
     "id": "hydromelon",
     "name": "Hydromelon",
     "category": "fruit",
