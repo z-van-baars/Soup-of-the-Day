@@ -51,12 +51,25 @@ const GoalMode = (() => {
       return;
     }
 
-    for (const effect of _effects) {
-      const opt = document.createElement('option');
-      opt.value = effect.id;
-      // Name only in the collapsed trigger — keeps the single-row compact
-      opt.textContent = effect.name;
-      select.appendChild(opt);
+    const groups = [
+      { label: 'Stat Buffs',        ids: ['attack-up', 'defense-up', 'speed-up', 'stealth-up', 'swim-speed-up'] },
+      { label: 'Hearts & Stamina',  ids: ['hearty', 'energizing', 'enduring'] },
+      { label: 'Elemental Resists', ids: ['cold-resist', 'heat-resist', 'shock-resist', 'flame-guard', 'slip-resist'] },
+      { label: 'Special',           ids: ['gloom-resist', 'bright'] },
+    ];
+
+    for (const group of groups) {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = group.label;
+      for (const id of group.ids) {
+        const effect = _effects.find(e => e.id === id);
+        if (!effect) continue;
+        const opt = document.createElement('option');
+        opt.value = effect.id;
+        opt.textContent = effect.name;
+        optgroup.appendChild(opt);
+      }
+      select.appendChild(optgroup);
     }
 
     select.onchange = _onEffectChange;
