@@ -124,5 +124,14 @@
     "tiers": 1,
     "potency_thresholds": [1],
     "tier_names": ["Lv 1"]
+  },
+  {
+    "id": "slip-resist",
+    "name": "Sticky",
+    "prefix": "Sticky",
+    "description": "Grants a coating that prevents slipping on wet cliffs and surfaces.",
+    "tiers": 2,
+    "potency_thresholds": [1, 5],
+    "tier_names": ["Lv 1", "Lv 2"]
   }
 ]

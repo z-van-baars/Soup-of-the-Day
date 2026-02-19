@@ -209,6 +209,7 @@ const IngredientGrid = (() => {
       'gloom-resist':  '🌑',
       'swim-speed-up': '🌊',
       'bright':        '💡',
+      'slip-resist':   '💧',
     };
     return map[effectId] || '✨';
   }
