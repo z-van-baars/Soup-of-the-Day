@@ -347,9 +347,9 @@ img { display: block; }
 /* Goal mode */
 .goal-controls {
   display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .goal-field {
@@ -357,6 +357,12 @@ img { display: block; }
   flex-direction: column;
   gap: 4px;
 }
+
+.goal-field-tier { flex-shrink: 0; }
+.goal-field-tier .styled-select { min-width: 72px; }
+
+.goal-field-effect { flex: 1; min-width: 0; }
+.goal-field-effect .styled-select { width: 100%; min-width: 0; }
 
 .goal-field label {
   font-size: 11px;
@@ -645,10 +651,55 @@ img { display: block; }
   box-shadow: 0 0 12px var(--gold-shadow);
 }
 
+/* ── Effect-colored borders — visible in all modes ──────────────── */
+/* Base: moderate colored border + subtle inward edge glow           */
+/* .highlighted (goal mode): amplified when relevant to current goal */
+
+/* Fallback for non-effect highlighted items (monster parts, etc.) */
 .ingredient-card.highlighted {
-  border-color: rgba(80, 180, 80, 0.5);
-  box-shadow: 0 0 10px rgba(80, 180, 80, 0.18);
+  border-color: rgba(200, 165, 60, 0.65);
+  box-shadow: inset 0 0 12px rgba(200, 165, 60, 0.25), var(--shadow-card);
 }
+.ingredient-card.effect-attack-up       { border-color:rgba(220,55,55,0.50);  box-shadow:inset 0 0 10px rgba(220,55,55,0.14),   var(--shadow-card); }
+.ingredient-card.effect-attack-up.highlighted   { border-color:rgba(220,55,55,0.90);  box-shadow:inset 0 0 18px rgba(220,55,55,0.42),   var(--shadow-card); }
+.ingredient-card.effect-defense-up      { border-color:rgba(65,125,220,0.50); box-shadow:inset 0 0 10px rgba(65,125,220,0.14),  var(--shadow-card); }
+.ingredient-card.effect-defense-up.highlighted  { border-color:rgba(65,125,220,0.90); box-shadow:inset 0 0 18px rgba(65,125,220,0.42),  var(--shadow-card); }
+.ingredient-card.effect-speed-up        { border-color:rgba(0,200,200,0.50);  box-shadow:inset 0 0 10px rgba(0,200,200,0.14),   var(--shadow-card); }
+.ingredient-card.effect-speed-up.highlighted    { border-color:rgba(0,200,200,0.90);  box-shadow:inset 0 0 18px rgba(0,200,200,0.42),   var(--shadow-card); }
+.ingredient-card.effect-stealth-up      { border-color:rgba(155,55,210,0.50); box-shadow:inset 0 0 10px rgba(155,55,210,0.14),  var(--shadow-card); }
+.ingredient-card.effect-stealth-up.highlighted  { border-color:rgba(155,55,210,0.90); box-shadow:inset 0 0 18px rgba(155,55,210,0.42),  var(--shadow-card); }
+.ingredient-card.effect-cold-resist     { border-color:rgba(220,130,40,0.50); box-shadow:inset 0 0 10px rgba(220,130,40,0.14),  var(--shadow-card); }
+.ingredient-card.effect-cold-resist.highlighted { border-color:rgba(220,130,40,0.90); box-shadow:inset 0 0 18px rgba(220,130,40,0.42),  var(--shadow-card); }
+.ingredient-card.effect-heat-resist     { border-color:rgba(80,195,240,0.50); box-shadow:inset 0 0 10px rgba(80,195,240,0.14),  var(--shadow-card); }
+.ingredient-card.effect-heat-resist.highlighted { border-color:rgba(80,195,240,0.90); box-shadow:inset 0 0 18px rgba(80,195,240,0.42),  var(--shadow-card); }
+.ingredient-card.effect-shock-resist    { border-color:rgba(220,200,40,0.50); box-shadow:inset 0 0 10px rgba(220,200,40,0.14),  var(--shadow-card); }
+.ingredient-card.effect-shock-resist.highlighted{ border-color:rgba(220,200,40,0.90); box-shadow:inset 0 0 18px rgba(220,200,40,0.42),  var(--shadow-card); }
+.ingredient-card.effect-flame-guard     { border-color:rgba(210,75,30,0.50);  box-shadow:inset 0 0 10px rgba(210,75,30,0.14),   var(--shadow-card); }
+.ingredient-card.effect-flame-guard.highlighted { border-color:rgba(210,75,30,0.90);  box-shadow:inset 0 0 18px rgba(210,75,30,0.42),   var(--shadow-card); }
+.ingredient-card.effect-energizing      { border-color:rgba(75,195,75,0.50);  box-shadow:inset 0 0 10px rgba(75,195,75,0.14),   var(--shadow-card); }
+.ingredient-card.effect-energizing.highlighted  { border-color:rgba(75,195,75,0.90);  box-shadow:inset 0 0 18px rgba(75,195,75,0.42),   var(--shadow-card); }
+.ingredient-card.effect-enduring        { border-color:rgba(35,175,120,0.50); box-shadow:inset 0 0 10px rgba(35,175,120,0.14),  var(--shadow-card); }
+.ingredient-card.effect-enduring.highlighted    { border-color:rgba(35,175,120,0.90); box-shadow:inset 0 0 18px rgba(35,175,120,0.42),  var(--shadow-card); }
+.ingredient-card.effect-hearty          { border-color:rgba(215,75,120,0.50); box-shadow:inset 0 0 10px rgba(215,75,120,0.14),  var(--shadow-card); }
+.ingredient-card.effect-hearty.highlighted      { border-color:rgba(215,75,120,0.90); box-shadow:inset 0 0 18px rgba(215,75,120,0.42),  var(--shadow-card); }
+.ingredient-card.effect-gloom-resist    { border-color:rgba(35,155,155,0.50); box-shadow:inset 0 0 10px rgba(35,155,155,0.14),  var(--shadow-card); }
+.ingredient-card.effect-gloom-resist.highlighted{ border-color:rgba(35,155,155,0.90); box-shadow:inset 0 0 18px rgba(35,155,155,0.42),  var(--shadow-card); }
+.ingredient-card.effect-swim-speed-up   { border-color:rgba(35,130,210,0.50); box-shadow:inset 0 0 10px rgba(35,130,210,0.14),  var(--shadow-card); }
+.ingredient-card.effect-swim-speed-up.highlighted{border-color:rgba(35,130,210,0.90); box-shadow:inset 0 0 18px rgba(35,130,210,0.42),  var(--shadow-card); }
+.ingredient-card.effect-bright          { border-color:rgba(225,195,50,0.50); box-shadow:inset 0 0 10px rgba(225,195,50,0.14),  var(--shadow-card); }
+.ingredient-card.effect-bright.highlighted      { border-color:rgba(225,195,50,0.90); box-shadow:inset 0 0 18px rgba(225,195,50,0.42),  var(--shadow-card); }
+
+/* ── Fuse bonus: radial center glow scaling with fuse power ─────── */
+/* Replaces the old flat blue border; uses background layer so it    */
+/* stacks cleanly with effect border/shadow on the same card         */
+.ingredient-card.fuse-t1 { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.07) 0%, transparent 55%), var(--bg-card); }
+.ingredient-card.fuse-t2 { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.18) 0%, transparent 60%), var(--bg-card); }
+.ingredient-card.fuse-t3 { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.33) 0%, transparent 65%), var(--bg-card); }
+.ingredient-card.fuse-t4 { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.52) 0%, transparent 70%), var(--bg-card); }
+.ingredient-card.fuse-t1:hover { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.10) 0%, transparent 55%), var(--bg-card-hover); }
+.ingredient-card.fuse-t2:hover { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.22) 0%, transparent 60%), var(--bg-card-hover); }
+.ingredient-card.fuse-t3:hover { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.40) 0%, transparent 65%), var(--bg-card-hover); }
+.ingredient-card.fuse-t4:hover { background: radial-gradient(ellipse at 50% 40%, rgba(120,200,255,0.60) 0%, transparent 70%), var(--bg-card-hover); }
 
 .ingredient-card.disabled {
   opacity: 0.35;
@@ -736,15 +787,6 @@ img { display: block; }
   color: var(--gold-dim);
 }
 
-/* Fuse highlight border */
-.ingredient-card.has-fuse {
-  border-color: rgba(60, 120, 220, 0.35);
-  box-shadow: 0 0 6px rgba(60, 120, 220, 0.18), inset 0 0 0 1px rgba(60, 120, 220, 0.15);
-}
-.ingredient-card.has-fuse:hover {
-  border-color: rgba(80, 150, 255, 0.6);
-  box-shadow: 0 0 12px rgba(60, 120, 220, 0.3), inset 0 0 0 1px rgba(80, 150, 255, 0.25);
-}
 
 /* Price badge */
 .price-badge {
@@ -1352,14 +1394,15 @@ img { display: block; }
   .ingredient-count { display: none; }
   .sort-controls { order: 3; width: 100%; margin-left: 0; flex-wrap: wrap; gap: 4px; }
 
-  /* ── Goal controls: filter + effect inline, tier + view toggle below ── */
-  .goal-controls { flex-wrap: wrap; align-items: center; gap: 6px; }
-  .goal-controls .mobile-filter-btn { flex-shrink: 0; }
-  .goal-controls .goal-field { flex: 1; min-width: 0; }
-  .goal-controls .goal-field-tier { flex: 0 0 100%; }
-  .goal-controls .goal-view-toggle { flex: 0 0 100%; }
+  /* ── Goal controls: single row — Filter | Toggle | Tier | Effect ── */
+  .goal-controls { flex-wrap: nowrap; align-items: center; gap: 5px; }
+  .goal-controls .mobile-filter-btn { flex-shrink: 0; padding: 6px 8px; }
+  .goal-controls .goal-view-toggle  { flex-shrink: 0; padding: 5px 7px; }
+  .goal-controls .goal-field-tier   { flex-shrink: 0; }
+  .goal-controls .goal-field-tier .styled-select { min-width: 64px; width: auto; }
+  .goal-controls .goal-field-effect { flex: 1; min-width: 0; }
+  .goal-controls .goal-field-effect .styled-select { width: 100%; min-width: 0; }
   .goal-field label { display: none; }
-  .goal-field .styled-select { width: 100%; min-width: 0; }
 
   /* ── Ingredient section: grows, scrolls internally ── */
   .ingredient-section {

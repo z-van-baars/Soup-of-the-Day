@@ -1,40 +1,32 @@
 /**
  * goal.js — Goal Mode
  *
- * User selects a target effect + tier.
- * Engine finds the best ingredient combos to achieve it.
- * Results shown as clickable combo cards (click loads into builder).
- *
- * View modes (toggled via goal-view-toggle button):
- *   'recipes' — combo list fills the panel, grid hidden
- *   'grid'    — ingredient grid visible with relevant items highlighted
+ * View modes:
+ *   'recipes' — combo list fills panel (goal-active), grid hidden
+ *   'grid'    — ingredient grid visible, filtered to relevant items
  */
 
 const GoalMode = (() => {
   let _effects = [];
   let _ingredients = [];
-  let _viewMode = 'recipes'; // persists across re-activations
+  let _viewMode = 'recipes';
 
   function activate(ingredients, effects) {
     _effects = effects;
     _ingredients = ingredients;
 
-    // Show goal panel, hide others
     document.getElementById('goal-panel')?.removeAttribute('hidden');
     document.getElementById('merchant-panel')?.setAttribute('hidden', '');
 
-    // Right sidebar: show cooked-result placeholder
     document.getElementById('results-content').innerHTML =
       '<p class="placeholder-text">Click a combo to see its cooked result.</p>';
 
     IngredientGrid.setMode('ingredient');
     _populateEffectDropdown();
 
-    // Wire view toggle button
     const viewBtn = document.getElementById('goal-view-toggle');
     if (viewBtn) viewBtn.onclick = _toggleViewMode;
 
-    // Re-apply state on re-activation
     const effectId = document.getElementById('goal-effect-select')?.value;
     if (effectId) {
       _highlightContributing(effectId);
@@ -62,7 +54,8 @@ const GoalMode = (() => {
     for (const effect of _effects) {
       const opt = document.createElement('option');
       opt.value = effect.id;
-      opt.textContent = effect.name + (effect.description ? ` — ${effect.description.split('.')[0]}` : '');
+      // Name only in the collapsed trigger — keeps the single-row compact
+      opt.textContent = effect.name;
       select.appendChild(opt);
     }
 
@@ -74,6 +67,10 @@ const GoalMode = (() => {
     _highlightContributing(effectId);
     _syncTierOptions();
     _onSearch();
+    // In grid view, re-filter the ingredient grid to new effect
+    if (_viewMode === 'grid') {
+      document.dispatchEvent(new CustomEvent('goal:grid-update'));
+    }
   }
 
   function _syncTierOptions() {
@@ -83,35 +80,34 @@ const GoalMode = (() => {
 
     const effectDef = _effects.find(e => e.id === effectId);
     const tiers = effectDef?.tiers || 0;
-    const tierField = tierSelect.closest('.goal-field');
-
-    if (!effectId || tiers === 0) {
-      if (tierField) tierField.style.display = 'none';
-      return;
-    }
 
     const prevVal = tierSelect.value;
     tierSelect.innerHTML = '';
 
+    // "Best" is always the first and default option
     const bestOpt = document.createElement('option');
     bestOpt.value = 'best';
-    bestOpt.textContent = 'Best Available';
+    bestOpt.textContent = 'Best';
     tierSelect.appendChild(bestOpt);
 
-    for (let t = 1; t <= tiers; t++) {
-      const opt = document.createElement('option');
-      opt.value = t;
-      opt.textContent = effectDef?.tier_names?.[t - 1] || `Tier ${t}`;
-      tierSelect.appendChild(opt);
+    // Tier options only when effect has named tiers
+    if (tiers > 0) {
+      for (let t = 1; t <= tiers; t++) {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = effectDef?.tier_names?.[t - 1] || `T${t}`;
+        tierSelect.appendChild(opt);
+      }
     }
 
+    // Restore prior selection if still valid
     if (prevVal === 'best' || (parseInt(prevVal, 10) >= 1 && parseInt(prevVal, 10) <= tiers)) {
       tierSelect.value = prevVal;
     } else {
       tierSelect.value = 'best';
     }
 
-    if (tierField) tierField.style.display = '';
+    // Tier field always visible (no hiding)
     tierSelect.onchange = _onSearch;
   }
 
@@ -129,8 +125,6 @@ const GoalMode = (() => {
 
     setTimeout(() => {
       const effectDef = _effects.find(e => e.id === effectId);
-
-      // Respect active sidebar filters — lets users exclude dragon parts etc.
       const filteredIngredients = _ingredients.filter(i => Filters.passes(i));
 
       let combos = [];
@@ -147,7 +141,7 @@ const GoalMode = (() => {
         combos = RecipeEngine.findBestCombos(effectId, resolvedTier, filteredIngredients, _effects, 20);
       }
 
-      // Deduplicate: same ingredient count + same effective outcome
+      // Deduplicate by effective outcome
       const goalSeen = new Set();
       combos = combos.filter(c => {
         const key = `${c.ingredients.length}|${c.result.sellValue}|${c.result.tier}|${c.result.effect?.durationSec ?? 0}`;
@@ -172,10 +166,7 @@ const GoalMode = (() => {
           heading.style.cssText = 'font-size:12px;color:var(--text-secondary);margin-bottom:8px;';
           heading.textContent = `${combos.length} combo${combos.length !== 1 ? 's' : ''} found for ${title}. Click to load.`;
           resultsEl.appendChild(heading);
-
-          for (const combo of combos) {
-            resultsEl.appendChild(_buildComboCard(combo));
-          }
+          for (const combo of combos) resultsEl.appendChild(_buildComboCard(combo));
         }
       }
     }, 10);
@@ -200,7 +191,6 @@ const GoalMode = (() => {
     statsRow.className = 'combo-stats';
     const r = combo.result;
 
-    // Tier badge
     if (r.tier > 0 && r.effect?.effectDef?.tier_names?.[r.tier - 1]) {
       const tierBadge = document.createElement('span');
       tierBadge.className = `result-tier-badge tier-${r.tier}`;
@@ -208,7 +198,6 @@ const GoalMode = (() => {
       tierBadge.textContent = r.effect.effectDef.tier_names[r.tier - 1];
       statsRow.appendChild(tierBadge);
     }
-
     if (r.hearts > 0) {
       const s = document.createElement('span');
       s.innerHTML = `❤️ <span>${r.hearts}</span>`;
@@ -251,6 +240,8 @@ const GoalMode = (() => {
       section?.classList.remove('goal-active');
       if (goalResults) goalResults.style.display = 'none';
       if (btn) { btn.textContent = '📋'; btn.title = 'Show best recipes'; }
+      // Trigger grid re-filter for the current effect
+      document.dispatchEvent(new CustomEvent('goal:grid-update'));
     }
   }
 
@@ -259,26 +250,36 @@ const GoalMode = (() => {
       IngredientGrid.setHighlightedIds([]);
       return;
     }
-
-    // Is this effect achievable via critters (elixir route)?
     const hasElixirRoute = _ingredients.some(i => i.type === 'critter' && i.effect === effectId);
-
     let ids;
     if (hasElixirRoute) {
       ids = _ingredients
         .filter(i => (i.type === 'critter' && i.effect === effectId) || i.type === 'monster')
         .map(i => i.id);
     } else {
-      ids = _ingredients
-        .filter(i => i.effect === effectId)
-        .map(i => i.id);
+      ids = _ingredients.filter(i => i.effect === effectId).map(i => i.id);
     }
-
     IngredientGrid.setHighlightedIds(ids);
   }
 
-  // Expose for app.js to clean up on mode switch
+  /**
+   * Returns a Set of ingredient IDs relevant to effectId, or null if all should show.
+   * Used by app.js to filter the grid in goal grid view.
+   */
+  function getRelevantIds(effectId) {
+    if (!effectId) return null;
+    const hasElixirRoute = _ingredients.some(i => i.type === 'critter' && i.effect === effectId);
+    if (hasElixirRoute) {
+      return new Set(
+        _ingredients
+          .filter(i => (i.type === 'critter' && i.effect === effectId) || i.type === 'monster')
+          .map(i => i.id)
+      );
+    }
+    return new Set(_ingredients.filter(i => i.effect === effectId).map(i => i.id));
+  }
+
   function getViewMode() { return _viewMode; }
 
-  return { activate, getViewMode };
+  return { activate, getViewMode, getRelevantIds };
 })();

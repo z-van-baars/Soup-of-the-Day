@@ -163,9 +163,16 @@ const IngredientGrid = (() => {
       card.appendChild(badge);
     }
 
-    // Blue fuse glow border
-    if (ing.fuse_value && ing.fuse_value > 1) {
-      card.classList.add('has-fuse');
+    // Effect-colored border (all modes — lets effects be spotted at a glance)
+    if (ing.effect) {
+      card.classList.add(`effect-${ing.effect}`);
+    }
+
+    // Fuse tier glow (replaces old blue border — radial center glow via background)
+    const fv = ing.fuse_value;
+    if (fv && fv > 0) {
+      const t = fv >= 26 ? 't4' : fv >= 15 ? 't3' : fv >= 6 ? 't2' : 't1';
+      card.classList.add(`fuse-${t}`);
     }
 
     // Price / fuse badge

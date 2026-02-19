@@ -125,21 +125,19 @@
       <div class="mode-panel" id="goal-panel" hidden>
         <div class="goal-controls">
           <button class="mobile-filter-btn" id="goal-mobile-filter-btn" aria-label="Open filters">&#9776; Filters</button>
-          <div class="goal-field">
-            <label for="goal-effect-select">Target Effect</label>
-            <select id="goal-effect-select" class="styled-select">
-              <option value="">— Choose an effect —</option>
-            </select>
-          </div>
+          <button class="btn-secondary goal-view-toggle" id="goal-view-toggle" title="Browse ingredient grid">🔍</button>
           <div class="goal-field goal-field-tier">
             <label for="goal-tier-select">Tier</label>
             <select id="goal-tier-select" class="styled-select">
-              <option value="1">Tier 1</option>
-              <option value="2">Tier 2</option>
-              <option value="3">Tier 3</option>
+              <option value="best">Best</option>
             </select>
           </div>
-          <button class="btn-secondary goal-view-toggle" id="goal-view-toggle" title="Show ingredient grid">🔍</button>
+          <div class="goal-field goal-field-effect">
+            <label for="goal-effect-select">Effect</label>
+            <select id="goal-effect-select" class="styled-select">
+              <option value="">— Effect —</option>
+            </select>
+          </div>
         </div>
         <div class="goal-results" id="goal-results">
           <p class="placeholder-text">Select an effect and tier, then click Find Recipes.</p>

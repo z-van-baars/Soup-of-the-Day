@@ -48,6 +48,11 @@
   Filters.init(effects, () => _updateGrid());
   Search.init(() => _updateGrid());
 
+  // Goal mode requests a grid re-filter when effect changes in grid view
+  document.addEventListener('goal:grid-update', () => {
+    if (currentMode === 'goal') _updateGrid();
+  });
+
   // ── Sort controls ──────────────────────────────────────────────────────────
   const sortNameBtn = document.getElementById('sort-name');
   const sortValueBtn = document.getElementById('sort-value');
@@ -132,6 +137,13 @@
       const cmp = primary !== 0 ? primary : secondary;
       return sortAsc ? -cmp : cmp;
     });
+
+    // In goal grid view, filter down to effect-relevant ingredients only
+    if (currentMode === 'goal' && GoalMode.getViewMode() === 'grid') {
+      const effectId = document.getElementById('goal-effect-select')?.value;
+      const relevantIds = GoalMode.getRelevantIds(effectId);
+      if (relevantIds) filtered = filtered.filter(i => relevantIds.has(i.id));
+    }
 
     IngredientGrid.renderGrid(filtered);
   }
