@@ -50,7 +50,7 @@ const IngredientGrid = (() => {
 
   function setShowFuse(val) {
     _showFuse = val;
-    renderGrid();
+    renderGrid(_lastFiltered);
   }
 
   function setSelectedIds(ids) {
