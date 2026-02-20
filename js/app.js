@@ -32,7 +32,8 @@
       }
     },
     onMerchantToggle: (id, qty) => {
-      MerchantMode.onMerchantToggle(id, qty);
+      if (currentMode === 'merchant') MerchantMode.onMerchantToggle(id, qty);
+      else if (currentMode === 'goal') GoalMode.onQtyChange(id, qty);
     },
   });
 
@@ -166,7 +167,6 @@
 
       case 'goal':
         GoalMode.activate(ingredients, effects);
-        IngredientGrid.setMode('ingredient'); // grid stays navigable
         break;
 
       case 'merchant':

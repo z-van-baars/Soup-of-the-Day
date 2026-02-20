@@ -213,67 +213,91 @@ const RecipeEngine = (() => {
 
   /**
    * Goal mode: find all ingredient combos (up to 5) that achieve targetEffectId at >= targetTier.
-   * Returns array of { ingredients, result } sorted by hearts desc, then ingredient count asc.
+   * Ingredients may repeat (e.g. 5× same critter for max duration).
    *
-   * For performance, we limit combo search to up to 4 ingredients (5 is computationally expensive
-   * without precomputation). Combos with the fewest ingredients that hit the target are ranked first.
+   * @param {Map|null} ownedQtys - Optional Map<id, qty>. When provided, constrains search to
+   *   owned ingredients at their specified quantities. When null, all allIngredients are fair
+   *   game with unlimited repetition (capped per item at 5 = recipe max).
+   *
+   * Sorted: longest duration → fewest ingredients → most hearts → best sell value.
    */
-  function findBestCombos(targetEffectId, targetTier, allIngredients, effects, maxResults = 20) {
+  function findBestCombos(targetEffectId, targetTier, allIngredients, effects, maxResults = 20, ownedQtys = null) {
     const effectDef = (effects || []).find(e => e.id === targetEffectId);
     if (!effectDef) return [];
 
-    const threshold = effectDef.potency_thresholds?.[targetTier - 1] ?? 0;
-
-    // Filter to candidates: ingredients that contribute to targetEffectId or are monster parts (for elixir targets)
-    const targetEffect = effectDef;
     const isElixirEffect = allIngredients.some(i => i.type === 'critter' && i.effect === targetEffectId);
 
     let candidates;
     if (isElixirEffect) {
-      // Elixir: critters with matching effect + monster parts
       candidates = allIngredients.filter(i =>
-        (i.type === 'critter' && i.effect === targetEffectId) ||
-        i.type === 'monster'
+        (i.type === 'critter' && i.effect === targetEffectId) || i.type === 'monster'
       );
     } else {
-      // Food: ingredients with matching effect
       candidates = allIngredients.filter(i =>
         i.type === 'food' && i.effect === targetEffectId
       );
     }
 
+    if (ownedQtys) {
+      // Constrain to owned items only
+      candidates = candidates.filter(i => (ownedQtys.get(i.id) || 0) > 0);
+    } else if (isElixirEffect) {
+      // Unlimited mode: cap monster parts to keep search space manageable.
+      // Keep all critters (essential) + top 12 monster parts by sell price.
+      const critters = candidates.filter(i => i.type === 'critter');
+      const monsters = candidates.filter(i => i.type === 'monster')
+        .sort((a, b) => (b.sell_price || 0) - (a.sell_price || 0))
+        .slice(0, 12);
+      candidates = [...critters, ...monsters];
+    }
+
     if (candidates.length === 0) return [];
+
+    // Alphabetical order for canonical multiset generation
+    candidates = [...candidates].sort((a, b) => a.name.localeCompare(b.name));
+
+    // Per-item max slots: from ownedQtys if constrained, otherwise 5 (recipe max)
+    const getMaxQty = (id) => ownedQtys ? Math.min(ownedQtys.get(id) || 0, 5) : 5;
+
+    // Suffix capacity for pruning: can remaining items fill slotsLeft?
+    const suffixCap = new Array(candidates.length + 1).fill(0);
+    for (let k = candidates.length - 1; k >= 0; k--) {
+      suffixCap[k] = suffixCap[k + 1] + getMaxQty(candidates[k].id);
+    }
 
     const results = [];
 
-    // Try combos of size 1..5 among candidates
-    function combineIngredients(arr, size) {
-      if (size === 1) return arr.map(x => [x]);
-      const result = [];
-      for (let i = 0; i <= arr.length - size; i++) {
-        const rest = combineIngredients(arr.slice(i + 1), size - 1);
-        for (const c of rest) result.push([arr[i], ...c]);
+    function generateCombos(itemIdx, slotsLeft, current) {
+      if (slotsLeft === 0) {
+        const recipe = computeRecipe(current, effects);
+        if (recipe.type === 'dubious') return;
+        if (!recipe.effect) return;
+        if (recipe.effect.effectId !== targetEffectId) return;
+        if (recipe.effect.tier < targetTier) return;
+        results.push({ ingredients: [...current], result: recipe });
+        return;
       }
-      return result;
+      if (itemIdx >= candidates.length) return;
+      if (suffixCap[itemIdx] < slotsLeft) return;
+
+      const item = candidates[itemIdx];
+      const maxK = Math.min(getMaxQty(item.id), slotsLeft);
+      for (let k = 0; k <= maxK; k++) {
+        for (let j = 0; j < k; j++) current.push(item);
+        generateCombos(itemIdx + 1, slotsLeft - k, current);
+        for (let j = 0; j < k; j++) current.pop();
+      }
     }
 
-    for (let size = 1; size <= Math.min(5, candidates.length); size++) {
-      const combos = combineIngredients(candidates, size);
-      for (const combo of combos) {
-        const recipe = computeRecipe(combo, effects);
-        if (recipe.type === 'dubious') continue;
-        if (!recipe.effect) continue;
-        if (recipe.effect.effectId !== targetEffectId) continue;
-        if (recipe.effect.tier < targetTier) continue;
-
-        results.push({ ingredients: combo, result: recipe });
-        if (results.length >= maxResults * 3) break; // collect extras for sorting
-      }
-      if (results.length >= maxResults * 3) break;
+    // Largest combos first — 5-ingredient recipes tend to have the longest duration
+    for (let size = 5; size >= 1; size--) {
+      generateCombos(0, size, []);
     }
 
-    // Sort: fewest ingredients first, then most hearts, then best sell value
+    // Sort: longest duration → fewest ingredients → most hearts → best sell value
     results.sort((a, b) => {
+      const durDiff = (b.result.effect?.durationSec ?? 0) - (a.result.effect?.durationSec ?? 0);
+      if (durDiff !== 0) return durDiff;
       const sizeDiff = a.ingredients.length - b.ingredients.length;
       if (sizeDiff !== 0) return sizeDiff;
       const heartsDiff = b.result.hearts - a.result.hearts;

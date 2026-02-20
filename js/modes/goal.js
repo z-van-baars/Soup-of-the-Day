@@ -10,6 +10,7 @@ const GoalMode = (() => {
   let _effects = [];
   let _ingredients = [];
   let _viewMode = 'recipes';
+  let _goalQtys = new Map(); // id → qty (1–5); empty = no constraint
 
   function activate(ingredients, effects) {
     _effects = effects;
@@ -21,6 +22,7 @@ const GoalMode = (() => {
     document.getElementById('results-content').innerHTML =
       '<p class="placeholder-text">Click a combo to see its cooked result.</p>';
 
+    IngredientGrid.setMerchantOwned(_goalQtys);
     IngredientGrid.setMode('ingredient');
     _populateEffectDropdown();
 
@@ -143,15 +145,17 @@ const GoalMode = (() => {
       let combos = [];
       let resolvedTier = null;
 
+      const qtys = _goalQtys.size > 0 ? _goalQtys : null;
+
       if (!tierVal || tierVal === 'best') {
         const maxTier = effectDef?.tiers || 3;
         for (let t = maxTier; t >= 1; t--) {
-          combos = RecipeEngine.findBestCombos(effectId, t, filteredIngredients, _effects, 20);
+          combos = RecipeEngine.findBestCombos(effectId, t, filteredIngredients, _effects, 20, qtys);
           if (combos.length > 0) { resolvedTier = t; break; }
         }
       } else {
         resolvedTier = parseInt(tierVal, 10) || 1;
-        combos = RecipeEngine.findBestCombos(effectId, resolvedTier, filteredIngredients, _effects, 20);
+        combos = RecipeEngine.findBestCombos(effectId, resolvedTier, filteredIngredients, _effects, 20, qtys);
       }
 
       // Deduplicate by effective outcome
@@ -249,10 +253,14 @@ const GoalMode = (() => {
       section?.classList.add('goal-active');
       if (goalResults) goalResults.style.display = '';
       if (btn) { btn.textContent = '🔍'; btn.title = 'Browse ingredient grid'; }
+      IngredientGrid.setMode('ingredient');
     } else {
       section?.classList.remove('goal-active');
       if (goalResults) goalResults.style.display = 'none';
       if (btn) { btn.textContent = '📋'; btn.title = 'Show best recipes'; }
+      // Enable quantity selection in grid view
+      IngredientGrid.setMerchantOwned(_goalQtys);
+      IngredientGrid.setMode('merchant');
       // Trigger grid re-filter for the current effect
       document.dispatchEvent(new CustomEvent('goal:grid-update'));
     }
@@ -292,7 +300,12 @@ const GoalMode = (() => {
     return new Set(_ingredients.filter(i => i.effect === effectId).map(i => i.id));
   }
 
+  function onQtyChange(id, qty) {
+    if (qty <= 0) _goalQtys.delete(id);
+    else _goalQtys.set(id, qty);
+  }
+
   function getViewMode() { return _viewMode; }
 
-  return { activate, getViewMode, getRelevantIds };
+  return { activate, getViewMode, getRelevantIds, onQtyChange };
 })();

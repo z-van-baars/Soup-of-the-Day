@@ -45,7 +45,7 @@ const IngredientGrid = (() => {
 
   function setMode(mode) {
     _mode = mode;
-    renderGrid();
+    renderGrid(_lastFiltered);
   }
 
   function setShowFuse(val) {
