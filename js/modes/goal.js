@@ -254,6 +254,7 @@ const GoalMode = (() => {
       if (goalResults) goalResults.style.display = '';
       if (btn) { btn.textContent = '🔍'; btn.title = 'Browse ingredient grid'; }
       IngredientGrid.setMode('ingredient');
+      _onSearch(); // re-run with current quantities whenever returning to recipe view
     } else {
       section?.classList.remove('goal-active');
       if (goalResults) goalResults.style.display = 'none';
