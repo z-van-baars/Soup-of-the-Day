@@ -412,6 +412,15 @@ img { display: block; }
   display: none;
 }
 
+/* Goal grid-view action bar */
+.goal-grid-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border-dim);
+}
+
 /* Merchant mode */
 .merchant-header {
   display: flex;
@@ -1418,6 +1427,15 @@ img { display: block; }
     border-top: 1px solid var(--border-dim);
     grid-column: unset;
     grid-row: unset;
+  }
+
+  /* Collapse results panel when goal mode is in ingredient-selection (grid) view */
+  .results-panel.goal-selecting {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-top: none;
+    overflow: hidden;
   }
 
   /* ── Recipe sidebar: collapsed header bar at bottom, expands on tap ── */

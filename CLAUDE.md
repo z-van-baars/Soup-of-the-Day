@@ -170,20 +170,21 @@ Overlay backdrop (z-index 89) dims content and closes drawer on tap.
 Controls row (left to right): `[☰ Filters] [🔍/📋 toggle] [Best/tier select] [Effect dropdown]`
 
 - **Recipes view** (📋, default): `.goal-active` on ingredient-section; combo list fills panel
-- **Grid view** (🔍): removes `.goal-active`, shows filtered grid (only relevant ingredients), highlights glow with their effect color
+- **Grid view** (🔍): removes `.goal-active`, shows filtered grid (only relevant ingredients); cards use merchant qty-cycling (0→1→2→3→4→5→0) to set per-ingredient limits
 - Effect dropdown uses short names only (Sneaky, Hasty, etc.) — no description inline
 - Tier select always visible, defaults to "Best" (auto-finds highest achievable tier)
 - Filters sidebar applies to combo search — dragon parts off by default
 - Combos deduplicated by `(ingredient_count, sellValue, tier, durationSec)`
 - Clicking a combo: loads slots + directly calls `RecipeEngine.computeRecipe` + `Results.renderResult`
 - `goal:grid-update` custom event fires when effect changes in grid view → app.js calls `_updateGrid()`
+- `_goalQtys` Map (id → 1–5) constrains `findBestCombos` — empty map = unconstrained
+- **Grid-view action bar** (`#goal-grid-actions`, hidden in recipe view): Set All ×5 | Clear All | Calculate — Calculate switches back to recipe view and runs the constrained search; on mobile, results panel collapses while in grid view (`.goal-selecting` class) and expands on Calculate
 
 ### Merchant Mode
-- Cards are checkboxes (own/don't own)
-- "Infinite qty" ON (default): each owned ingredient can repeat across slots
-- "Infinite qty" OFF: each owned ingredient fills at most 1 slot
+- Cards cycle qty 0→1→2→3→4→5→0 on click; badge shows current qty
+- "Set All ×5" / "Clear All" buttons act on all visible cards
 - Calculate button → `findAllValidRecipes()` with deduplication by `(sellValue, effectId, tier)`
-- Cap: 30 candidates in infinite mode to avoid combinatorial explosion; notice shown in results title when capped
+- Cap: 30 candidates to avoid combinatorial explosion; notice shown in results title when capped
 - Results sorted by sell value descending
 
 ---
@@ -264,15 +265,7 @@ No build step. Just push. See `PUBLISHING.md` for hosting/monetization options.
 ## Known Issues & Bugs
 
 ### Active
-1. **No images for recently-added ingredients** — Dazzlefruit, Splash Fruit, Glowing Cave Fish, Swift Carrot, White-Maned Lynel Saber Horn all show text placeholders. Images need to be sourced and added to `images/ingredients/`.
-
-2. **Gleeok Ice Horn image** — flagged at initial launch as possibly the wrong image. Needs visual verification in-game.
-
-3. **Merchant mode exact qty (Bug #3)** — ownership is binary (you own it or you don't). There's no way to say "I have 3 of these." With infinite qty OFF, the engine assumes exactly 1 of everything. Noted as a usability gap but not yet addressed.
-
-4. **Hearty Durian** — present in the dataset but reportedly removed from TotK's overworld (Nintendo removed it to stop BotW-era heart farming). Currently showing in the app. Decision pending: remove it, or keep it for completeness?
-
-5. **Hyrule Loach** — medium-confidence candidate for a missing ingredient (a fish, present in both BotW and TotK). Not yet added pending verification.
+1. **Gleeok Ice Horn image** — flagged at initial launch as possibly the wrong image. Needs visual verification in-game.
 
 ### Minor / Won't Fix Now
 - The `⚔ Fuse` toggle in the search bar shows/hides the sell|fuse badge on cards; this is display-only and doesn't interact with the new fuse glow system.
@@ -282,9 +275,6 @@ No build step. Just push. See `PUBLISHING.md` for hosting/monetization options.
 
 ## Open Questions
 
-- **Hearty Durian**: keep or remove?
-- **Hyrule Loach**: confirm it exists in TotK and add it?
-- **Merchant exact-qty UX**: should quantity be tracked per ingredient (input field), or is binary own/don't-own sufficient?
 - **Effect dropdown**: build a custom dropdown to show descriptions in options while keeping short name in the trigger, or keep native select with name-only?
 - **Goal mode on mobile**: the filter + toggle + tier + effect all fit in one row, but on very small phones (<360px) it might clip. Monitor and address if reported.
 
@@ -294,7 +284,7 @@ No build step. Just push. See `PUBLISHING.md` for hosting/monetization options.
 
 - **Ko-fi / donate button** in the footer (see `PUBLISHING.md` for full options)
 - **Deploy to Netlify or itch.io** for better visibility / custom domain
-- **Per-ingredient quantity in Merchant mode** — replace binary checkbox with a small number input so "I have 3 of these" is expressible
+- **Per-ingredient quantity in Merchant mode** — ~~binary own/don't-own~~ implemented: cards cycle 0–5, same system as goal mode qty constraints
 - **Custom dropdown for Goal mode effect selector** — trigger shows short name, options show name + italic description
 - **Favorites / saved recipes** — partially scaffolded in `results.js`, not fully wired
 - **Recipe sharing** — URL-encode a recipe so you can link someone to a specific combo
@@ -309,7 +299,26 @@ When `findBestCombos` returns 0 results, the message is just "No combos found. T
 
 ---
 
-## Session Log — What We Built Today
+## Session Log — 2026-02-20
+
+### Goal mode: qty constraints + grid-view action bar
+
+Confirmed and documented the per-ingredient qty system built in the previous session:
+- **Merchant mode**: cards cycle 0→1→2→3→4→5→0, `_ownedQtys` Map passed to `findAllValidRecipes`
+- **Goal mode**: same grid UX (merchant mode cards), `_goalQtys` Map passed as `ownedQtys` to `findBestCombos` — empty map = unconstrained search; non-empty = constrain to owned items only
+
+Added **goal grid-view action bar** (`#goal-grid-actions`):
+- Three buttons: **Set All ×5** | **Clear All** | **Calculate** — appear only in grid (ingredient-selection) sub-mode; hidden in recipe view
+- Mode-switch toggle (🔍/📋) stays visible in all states
+- Set All / Clear All iterate visible cards via `IngredientGrid.setMerchantQty` (mutates shared `_goalQtys` Map directly)
+- Calculate switches to recipe view + runs constrained search
+- On mobile: results panel collapses (`.goal-selecting` → `max-height: 0`) while in grid view; expands automatically when Calculate fires or toggle switches back to recipe view
+
+Files changed: `index.html`, `js/modes/goal.js`, `css/styles.css`
+
+---
+
+## Session Log — What We Built Previously
 
 This was a major polish session. Changes shipped (all on `main`):
 
@@ -352,11 +361,7 @@ This was a major polish session. Changes shipped (all on `main`):
 
 ## What's Next
 
-1. **Verify + source images** for the 5 new ingredients (top priority for visual polish)
-2. **Hearty Durian decision** — keep or remove from dataset
-3. **Hyrule Loach** — confirm presence in TotK, add if verified
-4. **Effect dropdown ordering** (#7 — low effort, see above)
-5. **No-results guidance** (#8 — moderate effort, see above)
-6. **Merchant exact-qty UX** — design and implement per-ingredient quantity
-7. **Custom effect dropdown** in Goal mode — trigger shows short name, options show description
-8. **Ko-fi/donate link** when ready to publish more broadly
+1. **Effect dropdown ordering** (#7 — low effort, see Polish items above)
+2. **No-results guidance** (#8 — moderate effort, see Polish items above)
+3. **Custom effect dropdown** in Goal mode — trigger shows short name, options show description
+4. **Ko-fi/donate link** when ready to publish more broadly

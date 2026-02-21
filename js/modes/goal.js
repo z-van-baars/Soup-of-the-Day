@@ -29,6 +29,31 @@ const GoalMode = (() => {
     const viewBtn = document.getElementById('goal-view-toggle');
     if (viewBtn) viewBtn.onclick = _toggleViewMode;
 
+    // Grid-view action buttons (clone to remove stale listeners)
+    const setAllBtn = document.getElementById('goal-set-all');
+    const clearAllBtn = document.getElementById('goal-clear-all');
+    const calcBtn = document.getElementById('goal-calc-btn');
+    setAllBtn?.replaceWith(setAllBtn.cloneNode(true));
+    clearAllBtn?.replaceWith(clearAllBtn.cloneNode(true));
+    calcBtn?.replaceWith(calcBtn.cloneNode(true));
+
+    document.getElementById('goal-set-all')?.addEventListener('click', () => {
+      document.getElementById('ingredient-grid')
+        ?.querySelectorAll('.ingredient-card[data-id]')
+        .forEach(card => IngredientGrid.setMerchantQty(card.dataset.id, 5));
+    });
+
+    document.getElementById('goal-clear-all')?.addEventListener('click', () => {
+      document.getElementById('ingredient-grid')
+        ?.querySelectorAll('.ingredient-card[data-id]')
+        .forEach(card => IngredientGrid.setMerchantQty(card.dataset.id, 0));
+    });
+
+    document.getElementById('goal-calc-btn')?.addEventListener('click', () => {
+      _viewMode = 'recipes';
+      _applyViewMode();
+    });
+
     const effectId = document.getElementById('goal-effect-select')?.value;
     if (effectId) {
       _highlightContributing(effectId);
@@ -248,17 +273,23 @@ const GoalMode = (() => {
     const section = document.querySelector('.ingredient-section');
     const btn = document.getElementById('goal-view-toggle');
     const goalResults = document.getElementById('goal-results');
+    const gridActions = document.getElementById('goal-grid-actions');
+    const resultsPanel = document.getElementById('results-panel');
 
     if (_viewMode === 'recipes') {
       section?.classList.add('goal-active');
       if (goalResults) goalResults.style.display = '';
       if (btn) { btn.textContent = '🔍'; btn.title = 'Browse ingredient grid'; }
+      gridActions?.setAttribute('hidden', '');
+      resultsPanel?.classList.remove('goal-selecting');
       IngredientGrid.setMode('ingredient');
       _onSearch(); // re-run with current quantities whenever returning to recipe view
     } else {
       section?.classList.remove('goal-active');
       if (goalResults) goalResults.style.display = 'none';
       if (btn) { btn.textContent = '📋'; btn.title = 'Show best recipes'; }
+      gridActions?.removeAttribute('hidden');
+      resultsPanel?.classList.add('goal-selecting');
       // Enable quantity selection in grid view
       IngredientGrid.setMerchantOwned(_goalQtys);
       IngredientGrid.setMode('merchant');
