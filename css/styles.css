@@ -1118,6 +1118,55 @@ img { display: block; }
 .tier-2 { background: #2a3a10; color: #a0b840; }
 .tier-3 { background: #3a2a10; color: var(--gold-bright); }
 
+/* Effect pip row */
+.effect-pips {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.effect-pip {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  flex-shrink: 0;
+}
+
+.effect-pip.dim { opacity: 0.18; }
+
+.effect-bonus-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 15px;
+}
+
+/* Per-effect pip colors (mask-image + background-color) */
+.pip-speed-up     { background-color: rgb(0,200,200);   -webkit-mask-image: url('../images/effects/speed-up.png');     mask-image: url('../images/effects/speed-up.png'); }
+.pip-stealth-up   { background-color: rgb(155,55,210);  -webkit-mask-image: url('../images/effects/stealth-up.png');   mask-image: url('../images/effects/stealth-up.png'); }
+.pip-cold-resist  { background-color: rgb(220,130,40);  -webkit-mask-image: url('../images/effects/cold-resist.png');  mask-image: url('../images/effects/cold-resist.png'); }
+.pip-heat-resist  { background-color: rgb(80,195,240);  -webkit-mask-image: url('../images/effects/heat-resist.png');  mask-image: url('../images/effects/heat-resist.png'); }
+.pip-shock-resist { background-color: rgb(220,200,40);  -webkit-mask-image: url('../images/effects/shock-resist.png'); mask-image: url('../images/effects/shock-resist.png'); }
+.pip-flame-guard  { background-color: rgb(210,75,30);   -webkit-mask-image: url('../images/effects/flame-guard.png');  mask-image: url('../images/effects/flame-guard.png'); }
+.pip-energizing   { background-color: rgb(75,195,75);   -webkit-mask-image: url('../images/effects/energizing.png');   mask-image: url('../images/effects/energizing.png'); }
+.pip-enduring     { background-color: rgb(35,175,120);  -webkit-mask-image: url('../images/effects/enduring.png');     mask-image: url('../images/effects/enduring.png'); }
+.pip-hearty       { background-color: rgb(215,75,120);  -webkit-mask-image: url('../images/effects/heart.png');        mask-image: url('../images/effects/heart.png'); }
+.pip-swim-speed-up { background-color: rgb(35,130,210); -webkit-mask-image: url('../images/effects/swim-speed-up.png'); mask-image: url('../images/effects/swim-speed-up.png'); }
+.pip-bright       { background-color: rgb(225,195,50);  -webkit-mask-image: url('../images/effects/bright.png');       mask-image: url('../images/effects/bright.png'); }
+.pip-slip-resist  { background-color: rgb(120,170,240); -webkit-mask-image: url('../images/effects/slip-resist.png');  mask-image: url('../images/effects/slip-resist.png'); }
+
+/* Fallback: colored diamond for effects without icon files */
+.pip-attack-up    { color: rgb(220,55,55);   width: auto; font-size: 13px; line-height: 15px; }
+.pip-defense-up   { color: rgb(65,125,220);  width: auto; font-size: 13px; line-height: 15px; }
+.pip-gloom-resist { color: rgb(35,155,155);  width: auto; font-size: 13px; line-height: 15px; }
+
 .result-stats {
   display: flex;
   flex-direction: column;

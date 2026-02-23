@@ -194,6 +194,14 @@ const RecipeEngine = (() => {
     const sellValue = computeSellValue(ingredients);
     const name = generateRecipeName(recipeType, effectResult, hearts);
 
+    // Hearty: extra yellow hearts = sum of hearty-tagged food/critter potency only
+    // (monster part contributions are excluded from the heart count)
+    if (effectResult?.effectId === 'hearty') {
+      effectResult.heartyHearts = ingredients
+        .filter(i => i.effect === 'hearty' && (recipeType === 'elixir' ? i.type === 'critter' : i.type === 'food'))
+        .reduce((sum, i) => sum + (i.effect_potency || 0), 0);
+    }
+
     // Warn about extra hearts in elixir context
     if (recipeType === 'elixir' && ingredients.some(i => i.type === 'food')) {
       warnings.push('Food + critter/monster mix makes Dubious Food.');

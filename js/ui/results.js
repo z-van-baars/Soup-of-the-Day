@@ -40,6 +40,59 @@ const Results = (() => {
     }
   }
 
+  const EFFECT_ICONS = {
+    'speed-up':      'images/effects/speed-up.png',
+    'stealth-up':    'images/effects/stealth-up.png',
+    'cold-resist':   'images/effects/cold-resist.png',
+    'heat-resist':   'images/effects/heat-resist.png',
+    'shock-resist':  'images/effects/shock-resist.png',
+    'flame-guard':   'images/effects/flame-guard.png',
+    'energizing':    'images/effects/energizing.png',
+    'enduring':      'images/effects/enduring.png',
+    'hearty':        'images/effects/heart.png',
+    'swim-speed-up': 'images/effects/swim-speed-up.png',
+    'bright':        'images/effects/bright.png',
+    'slip-resist':   'images/effects/slip-resist.png',
+  };
+
+  function _makePip(effectId, dim = false) {
+    const pip = document.createElement('span');
+    pip.className = `effect-pip pip-${effectId}${dim ? ' dim' : ''}`;
+    if (!EFFECT_ICONS[effectId]) pip.textContent = '◆';
+    return pip;
+  }
+
+  function _buildEffectPips(effect) {
+    const wrap = document.createElement('div');
+    wrap.className = 'effect-pips';
+    const { effectId, tier, effectDef, heartyHearts, totalPotency } = effect;
+
+    if (effectDef && effectDef.tiers > 0) {
+      // Tiered: N filled pips + (max − N) dim pips
+      for (let i = 1; i <= effectDef.tiers; i++) {
+        wrap.appendChild(_makePip(effectId, i > tier));
+      }
+    } else if (effectId === 'hearty') {
+      wrap.appendChild(_makePip('hearty'));
+      const label = document.createElement('span');
+      label.className = 'effect-bonus-count';
+      label.textContent = `×${heartyHearts ?? totalPotency}`;
+      wrap.appendChild(label);
+    } else if (effectId === 'energizing') {
+      const segs = Math.min(15, Math.round(totalPotency * 15 / 11));
+      const full = Math.floor(segs / 5);
+      for (let i = 0; i < full; i++) wrap.appendChild(_makePip('energizing'));
+      if (segs % 5 > 0) wrap.appendChild(_makePip('energizing', true));
+    } else if (effectId === 'enduring') {
+      const segs = Math.min(10, totalPotency);
+      const full = Math.floor(segs / 5);
+      for (let i = 0; i < full; i++) wrap.appendChild(_makePip('enduring'));
+      if (segs % 5 > 0) wrap.appendChild(_makePip('enduring', true));
+    }
+
+    return wrap;
+  }
+
   function _buildResultCard(result, ingredientList) {
     const card = document.createElement('div');
     card.className = `result-card ${result.type === 'dubious' ? 'dubious' : ''}`;
@@ -83,6 +136,9 @@ const Results = (() => {
       }
 
       card.appendChild(effectRow);
+
+      const pips = _buildEffectPips(result.effect);
+      if (pips.children.length > 0) card.appendChild(pips);
     }
 
     // Stats
@@ -99,7 +155,7 @@ const Results = (() => {
     if (result.hearts > 0) addStat('❤️ Hearts', `+${result.hearts}`);
     if (result.duration && result.duration !== '—') addStat('⏱ Duration', result.duration);
     addStat('<img src="images/rupee.png" class="rupee-icon" alt=""> Sell', `<span class="sell-value">${result.sellValue}r</span>`);
-    if (result.effect?.totalPotency) addStat('✨ Potency', result.effect.totalPotency);
+    if (result.effect?.totalPotency && (result.effect.effectDef?.tiers ?? 0) > 0) addStat('✨ Potency', result.effect.totalPotency);
 
     card.appendChild(stats);
 
