@@ -797,6 +797,21 @@ img { display: block; }
   cursor: pointer;
 }
 
+/* Rupee icon — gem-green tint applied via filter */
+.rupee-icon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  /* black outline → vibrant gem-green */
+  filter: brightness(0) invert(1) sepia(1) saturate(6) hue-rotate(105deg) brightness(0.95);
+}
+.rupee-tab-icon {
+  width: 15px;
+  height: 15px;
+}
+
 /* Effect badge */
 .effect-badge {
   position: absolute;

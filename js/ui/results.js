@@ -98,7 +98,7 @@ const Results = (() => {
 
     if (result.hearts > 0) addStat('❤️ Hearts', `+${result.hearts}`);
     if (result.duration && result.duration !== '—') addStat('⏱ Duration', result.duration);
-    addStat('💎 Sell', `<span class="sell-value">${result.sellValue}r</span>`);
+    addStat('<img src="images/rupee.png" class="rupee-icon" alt=""> Sell', `<span class="sell-value">${result.sellValue}r</span>`);
     if (result.effect?.totalPotency) addStat('✨ Potency', result.effect.totalPotency);
 
     card.appendChild(stats);
@@ -165,7 +165,7 @@ const Results = (() => {
       statsRow.appendChild(s);
     }
     const sellS = document.createElement('span');
-    sellS.innerHTML = `💎 <span class="sell-value">${r.sellValue}r</span>`;
+    sellS.innerHTML = `<img src="images/rupee.png" class="rupee-icon" alt=""> <span class="sell-value">${r.sellValue}r</span>`;
     statsRow.appendChild(sellS);
 
     card.appendChild(statsRow);
