@@ -254,6 +254,9 @@ img { display: block; }
 }
 
 .filter-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 10px;
   font-weight: 600;
   color: var(--text-muted);
@@ -261,6 +264,20 @@ img { display: block; }
   letter-spacing: 0.08em;
   margin-bottom: 6px;
 }
+
+.filter-section-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 10px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.filter-section-toggle:hover { color: var(--text-primary); }
+
+.filter-section.collapsed .filter-section-body { display: none; }
 
 .filter-type-master {
   display: flex;

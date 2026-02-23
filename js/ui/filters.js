@@ -26,6 +26,12 @@ const Filters = (() => {
   let fuseMaxEnabled = false;
   let fuseMaxValue = 30;
 
+  // Sell value filters
+  let valueMinEnabled = false;
+  let valueMinValue   = 5;
+  let valueMaxEnabled = false;
+  let valueMaxValue   = 100;
+
   function init(effects, onChangeFn) {
     _onChange = onChangeFn;
 
@@ -145,6 +151,71 @@ const Filters = (() => {
       _notifyChange();
     });
 
+    // Sell value filters
+    const valueMinChk = document.getElementById('filter-value-min-enabled');
+    const valueMinInc = document.getElementById('value-min-incrementer');
+    const valueMinValEl = document.getElementById('value-min-val');
+    const valueMinDecBtn = document.getElementById('value-min-dec');
+    const valueMinIncBtn = document.getElementById('value-min-inc');
+
+    const valueMaxChk = document.getElementById('filter-value-max-enabled');
+    const valueMaxInc = document.getElementById('value-max-incrementer');
+    const valueMaxValEl = document.getElementById('value-max-val');
+    const valueMaxDecBtn = document.getElementById('value-max-dec');
+    const valueMaxIncBtn = document.getElementById('value-max-inc');
+
+    valueMinChk?.addEventListener('change', () => {
+      valueMinEnabled = valueMinChk.checked;
+      if (valueMinInc) {
+        valueMinInc.style.opacity = valueMinEnabled ? '1' : '0.4';
+        valueMinInc.style.pointerEvents = valueMinEnabled ? 'auto' : 'none';
+      }
+      _notifyChange();
+    });
+
+    valueMinDecBtn?.addEventListener('click', () => {
+      valueMinValue = Math.max(0, valueMinValue - 5);
+      if (valueMinValEl) valueMinValEl.textContent = valueMinValue;
+      _notifyChange();
+    });
+
+    valueMinIncBtn?.addEventListener('click', () => {
+      valueMinValue = Math.min(300, valueMinValue + 5);
+      if (valueMinValEl) valueMinValEl.textContent = valueMinValue;
+      _notifyChange();
+    });
+
+    valueMaxChk?.addEventListener('change', () => {
+      valueMaxEnabled = valueMaxChk.checked;
+      if (valueMaxInc) {
+        valueMaxInc.style.opacity = valueMaxEnabled ? '1' : '0.4';
+        valueMaxInc.style.pointerEvents = valueMaxEnabled ? 'auto' : 'none';
+      }
+      _notifyChange();
+    });
+
+    valueMaxDecBtn?.addEventListener('click', () => {
+      valueMaxValue = Math.max(1, valueMaxValue - 5);
+      if (valueMaxValEl) valueMaxValEl.textContent = valueMaxValue;
+      _notifyChange();
+    });
+
+    valueMaxIncBtn?.addEventListener('click', () => {
+      valueMaxValue = Math.min(300, valueMaxValue + 5);
+      if (valueMaxValEl) valueMaxValEl.textContent = valueMaxValue;
+      _notifyChange();
+    });
+
+    // Collapsible section toggles
+    document.querySelectorAll('.filter-section-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const section = btn.closest('.filter-section');
+        const collapsed = section.classList.toggle('collapsed');
+        btn.textContent = collapsed ? '▶' : '▼';
+        btn.setAttribute('aria-label', collapsed ? 'Expand section' : 'Collapse section');
+      });
+    });
+
     // Mobile sidebar toggle (button inside sidebar header)
     document.getElementById('sidebar-toggle')?.addEventListener('click', () => {
       _toggleMobileSidebar();
@@ -252,6 +323,11 @@ const Filters = (() => {
     const fuse = ingredient.fuse_value;
     if (fuseHideAll && fuse && fuse > 1) return false;
     if (fuseMaxEnabled && fuse && fuse > fuseMaxValue) return false;
+
+    // Sell value filters
+    const sellPrice = ingredient.sell_price || 0;
+    if (valueMinEnabled && sellPrice < valueMinValue) return false;
+    if (valueMaxEnabled && sellPrice > valueMaxValue) return false;
 
     return true;
   }
