@@ -273,7 +273,7 @@ const RecipeEngine = (() => {
         if (recipe.type === 'dubious') return;
         if (!recipe.effect) return;
         if (recipe.effect.effectId !== targetEffectId) return;
-        if (recipe.effect.tier < targetTier) return;
+        if (targetTier > 0 && recipe.effect.tier < targetTier) return;
         results.push({ ingredients: [...current], result: recipe });
         return;
       }

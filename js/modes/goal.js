@@ -173,10 +173,16 @@ const GoalMode = (() => {
       const qtys = _goalQtys.size > 0 ? _goalQtys : null;
 
       if (!tierVal || tierVal === 'best') {
-        const maxTier = effectDef?.tiers || 3;
-        for (let t = maxTier; t >= 1; t--) {
-          combos = RecipeEngine.findBestCombos(effectId, t, filteredIngredients, _effects, 20, qtys);
-          if (combos.length > 0) { resolvedTier = t; break; }
+        const tiers = effectDef?.tiers ?? 0;
+        if (tiers === 0) {
+          // Un-tiered effect (hearty, energizing, enduring) — no tier to target
+          combos = RecipeEngine.findBestCombos(effectId, 0, filteredIngredients, _effects, 20, qtys);
+          // resolvedTier stays null
+        } else {
+          for (let t = tiers; t >= 1; t--) {
+            combos = RecipeEngine.findBestCombos(effectId, t, filteredIngredients, _effects, 20, qtys);
+            if (combos.length > 0) { resolvedTier = t; break; }
+          }
         }
       } else {
         resolvedTier = parseInt(tierVal, 10) || 1;
@@ -202,7 +208,10 @@ const GoalMode = (() => {
       if (resultsEl) {
         resultsEl.innerHTML = '';
         if (combos.length === 0) {
-          resultsEl.innerHTML = `<p class="placeholder-text">No combos found for ${title}. Try a lower tier.</p>`;
+          const noResultsHint = (effectDef?.tiers ?? 0) === 0
+            ? `No combos found for ${title}. Check that the relevant ingredients aren't filtered out.`
+            : `No combos found for ${title}. Try a lower tier.`;
+          resultsEl.innerHTML = `<p class="placeholder-text">${noResultsHint}</p>`;
         } else {
           const heading = document.createElement('p');
           heading.style.cssText = 'font-size:12px;color:var(--text-secondary);margin-bottom:8px;';
